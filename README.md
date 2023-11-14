@@ -27,8 +27,8 @@ for hardware and instrumentation control: **_RLaB2_**/**_RLaB3_** wrapper for [l
 
 - _kripto_ - provides cryptography functions from [libkripto](https://github.com/LightBit/libkripto).
 
-- _matio_ - M/*/*LAB mostly input/only basic output library: if you are wondering about the asymmetry, well, since 2010's **_RLaB2_**/**_RLaB3_**
-supports input/output using HDF5 for all its data structures (except _cell_ that was added in 2018).
-As M/*/*LAB _mat_ files formatting is an abominable obfuscation of HDF5, advanced users should not have problems importing HDF5 files into M**LAB.
+- _matio_ - MATLAB /mostly input/only basic output/ library: if you are wondering about the asymmetry, well, since 2010's **_RLaB2_**/**_RLaB3_**
+support input/output using HDF5 for all its data structures (except _cell_ that was added in 2018).
+As MATLAB _mat_ files format is an abominable obfuscation of HDF5, advanced users should not have problems importing HDF5 files into it.
 
 - _ngspice_ - modeling of electronic/thermal circuits
