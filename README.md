@@ -17,4 +17,18 @@ For that reason, these solvers were not incorporated into **_RLaB3_** but are, s
 The project comprise the following solver libraries:
 
 - _gpib_ - GPIB (Hewlett-Packard's General Purpose Interface Bus, for those who still use it and remember it)
-for hardware and instrumentation control. **_RLaB2_**/**_RLaB3_** wrapper for [linux-gpib](https://sourceforge.net/projects/linux-gpib).
+for hardware and instrumentation control: **_RLaB2_**/**_RLaB3_** wrapper for [linux-gpib](https://sourceforge.net/projects/linux-gpib).
+
+- glpk - provides solvers from [GNU linear programming kit](https://www.gnu.org/software/glpk).
+
+- gphoto2 - provides camera control and image download for usb connected cameras using [gphoto2](http://gphoto.org).
+
+- gpib: GPIB hardware and instrumentation control
+
+- gts: GNU triangulation library
+
+- kripto: cryptography functions
+
+- matio: MATLAB input/output library
+
+- ngspice: modeling of electronic/thermal circuits
