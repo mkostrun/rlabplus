@@ -14,3 +14,4 @@ if form of shared object libraries.
 Basically, the solvers within the project are aimed at narrow technical field, and might not be of interest to wide audiences. 
 For that reason, these solvers were not incorporated into **_RLaB3_** but are, so to speak, free standing.
 
+The project comprise the following solver libraries:
