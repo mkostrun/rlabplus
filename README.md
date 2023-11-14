@@ -15,3 +15,6 @@ Basically, the solvers within the project are aimed at narrow technical field, a
 For that reason, these solvers were not incorporated into **_RLaB3_** but are, so to speak, free standing.
 
 The project comprise the following solver libraries:
+
+- _gpib_ - GPIB (Hewlett-Packard's General Purpose Interface Bus, for those who still use it and remember it)
+for hardware and instrumentation control
