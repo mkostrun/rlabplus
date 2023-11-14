@@ -31,4 +31,5 @@ for hardware and instrumentation control: **_RLaB2_**/**_RLaB3_** wrapper for [l
 support input/output using HDF5 for all its data structures (except _cell_ that was added in 2018).
 As MATLAB _mat_ files format is an abominable obfuscation of HDF5, advanced users should not have problems importing HDF5 files into it.
 
-- _ngspice_ - modeling of electronic/thermal circuits
+- _ngspice_ - access to modeling of electronic/thermal circuits using _ngspice_: create circuit scripts, executing them using a multiprocessor ngspice interpreter,
+with computation results returned as internal variables.
