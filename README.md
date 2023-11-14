@@ -19,16 +19,14 @@ The project comprise the following solver libraries:
 - _gpib_ - GPIB (Hewlett-Packard's General Purpose Interface Bus, for those who still use it and remember it)
 for hardware and instrumentation control: **_RLaB2_**/**_RLaB3_** wrapper for [linux-gpib](https://sourceforge.net/projects/linux-gpib).
 
-- glpk - provides solvers from [GNU linear programming kit](https://www.gnu.org/software/glpk).
+- _glpk_ - provides solvers from [GNU linear programming kit](https://www.gnu.org/software/glpk).
 
-- gphoto2 - provides camera control and image download for usb connected cameras using [gphoto2](http://gphoto.org).
+- _gphoto2_ - provides camera control and image download for usb connected cameras using [gphoto2](http://gphoto.org).
 
-- gpib: GPIB hardware and instrumentation control
+- _gts_ - provides access to [GNU triangulation library](https://gts.sourceforge.net) for meshes creations and computations.
 
-- gts: GNU triangulation library
+- _kripto_ - provides cryptography functions from [libkripto](https://github.com/LightBit/libkripto).
 
-- kripto: cryptography functions
+- _matio_ - M**LAB mostly input/only basic output library
 
-- matio: MATLAB input/output library
-
-- ngspice: modeling of electronic/thermal circuits
+- _ngspice_ - modeling of electronic/thermal circuits
