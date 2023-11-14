@@ -1,6 +1,6 @@
 # RLAB3/RLABPLUS
 
-** _RLaB3_ ** is an interactive, interpreted scientific programming environment for Linux operating system. 
+**_RLaB3_** is an interactive, interpreted scientific programming environment for Linux operating system. 
 It allows fast prototyping and script development. 
 Its syntax is a combination of c (curly brackets for blocks of statement, some statements) and M**LAB and fortran (indexing of arrays starts from 1).
 
