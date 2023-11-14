@@ -9,7 +9,7 @@ provides a syntax update with some internal and organizational changes compared 
 [**_RLaB2_**](https://rlab.sourceforge.net), as developed by Ian Searle.
 The projects support 32- and 64-bit linux systems, for AMD, Intel and arm/RaspberryPi.
 
-The project **_RLABPLUS_** adds large number of solvers, input/output operations, and visualization features and connections to other specialized software,
+The project **_RLABPLUS_** adds a number of solvers, input/output operations, and visualization features and connections to other specialized software,
 in form of shared object libraries.
 Basically, the solvers within the project are aimed at narrow technical field, and might not be of interest to wide audiences. 
 For that reason, these solvers were not incorporated into **_RLaB3_** but are, so to speak, free standing.
