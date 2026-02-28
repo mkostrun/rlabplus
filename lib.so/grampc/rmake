@@ -1,0 +1,45 @@
+#!/bin/bash
+# rmake for rlabplus: grampc
+# (c) Marijan Kostrun, 2025
+
+# rlab source location
+RLAB_SDK=/usr/local/include/rlab
+
+# garbage collector include directory. part of the rlab source tree.
+GC_RLAB=$RLAB_SDK/gc
+
+HOSTTYPE=`uname -i`
+if [ "$HOSTTYPE" = "x86_64" ]; then
+  GRAMPC_RLAB_SO=rlabplus_lib64grampc.so
+else
+  GRAMPC_RLAB_SO=rlabplus_libgrampc.so
+fi
+
+PROJSRC=grampc
+LIBNAME_A=libgrampc.a
+
+##
+##
+## build GRAMPCtool/libGRAMPC.a
+##
+##
+rm -rf ${LIBNAME_A}
+if [ ! -f ${LIBNAME_A} ]; then
+  rm -rf ${LIBNAME_A}
+  cd ${PROJSRC}
+  # make clean
+  make
+  cd ..
+fi
+
+# create so
+# note: CFLAGS have to be the same as those used in building the rlab
+echo -n "Building GRAMPC bindings for rlabplus"
+rc=`gcc $CFLAGS -fPIC -c r_${PROJSRC}.c -I${RLAB_SDK} -I${GC_RLAB}\
+ -I/usr/include -I./${PROJSRC}/include -I./ 2>&1`
+[ -z "$rc" ] || (echo "$rc"; exit)
+if [ -z "$rc" ]; then
+  gcc -Wall -shared -fPIC -o $GRAMPC_RLAB_SO r_${PROJSRC}.o ${LIBNAME_A}
+  rm *.o
+  echo " . Done!"
+fi
