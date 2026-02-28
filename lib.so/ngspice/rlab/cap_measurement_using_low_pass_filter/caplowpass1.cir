@@ -1,0 +1,11 @@
+CAPACITANCE MEASUREMENT USING LOW PASS FILTER
+*PARAMETERS
+.param cap1=70e-12
+.param tper=1e-6
+.param tper2=5e-7
+vgen 1 0 pulse(0 3.3 1e-9 1e-9 1e-9 'tper2' 'tper')
+r1   1 2 4100
+c1   2 0 'cap1'
+.ic v(2)=0
+.tran 1ns 10000ns
+.end

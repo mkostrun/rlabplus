@@ -1,0 +1,12 @@
+XLAMP XP E/G - LED WITH FIXED VOLTAGE SUPPLY
+* PARAMETERS
+.param tja=0
+.TEMP 'temp'
+v1 1 0 0
+vj 2 0 'tja'
+a1 1 0 2 xpg
+* use cree model of their led
+.MODEL xpg cmdiode(RS=0.28172 IS=520.88E-12 N=5.7846 XTI=62.500 EG=2.5000 RP=1e10)
+.OPTIONS ABSTOL=1e-6 RELTOL=1e-3
+.dc v1 'vstart' 'vend' 'vdelta'
+.end

@@ -1,0 +1,25 @@
+XLAMP XP E/G - LED WITH FIXED VOLTAGE SUPPLY
+* PARAMETERS
+.param rser=0.43895
+.param rpar=1e10
+.TEMP 'temp'
+v1 2 0 0
+rs 2 1 'rser'
+d1 1 0 'lamp'
+r1 1 0 'rpar'
+* use cree model of their led
+.MODEL XPE D
++ RS=0
++ IS=520.88E-12
++ N=5.7846
++ XTI=62.500
++ EG=2.5000
+.MODEL XPG D
++ IS=13.076E-12
++ N=4.6837
++ RS=0
++ XTI=42.150
++ EG=2.5000
+.OPTIONS ABSTOL=1e-6 RELTOL=1e-3
+.dc v1 'vstart' 'vend' 'vdelta'
+.end

@@ -1,0 +1,36 @@
+CAPACITANCE MEASUREMENT USING LOW PASS FILTER
+*PARAMETERS
+.param cap1=7e-12
+.param cap2=1e-9
+.param res1=1e4
+.param tperiod=1e-6
+.param tperon=5e-7
+vgen 1 0 0 pulse(0 3.3 1e-9 1e-9 1e-9 'tperon' 'tperiod')
+r1   1 2 'res1'
+c1   2 0 'cap1'
+x1   2 3 diode
+r2   3 0 1e6
+c2   3 0 'cap2'
+******************************************
+*1N4148 from http://users.skynet.be/hugocoolens/spice/diodes/1n4148.htm
+*Package Pin 1 : Cathode
+*Package Pin 2 : Anode
+.SUBCKT diode 1 2
+RD  1 2 5.827E+9
+D1  1 2 1N4148
+.MODEL 1N4148 D
++ IS = 4.352E-9
++ N = 1.906
++ BV = 110
++ IBV = 0.0001
++ RS = 0.6458
++ CJO = 7.048E-13
++ VJ = 0.869
++ M = 0.03
++ FC = 0.5
++ TT = 3.48E-9
+.ENDS
+******************************************
+.ic v(2)=0 v(3)=0
+.tran 50ns 960us 958us
+.end
