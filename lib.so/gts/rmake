@@ -1,0 +1,41 @@
+#!/bin/bash
+# rmake for rlabplus: gpib
+# (c) Marijan Kostrun, 2006, 2010
+
+# rlab source location
+RLAB_SDK=/usr/local/include/rlab
+
+# garbage collector include directory. part of the rlab source tree.
+GC_RLAB=$RLAB_SDK/gc
+
+# gts library:
+HOSTTYPE=`uname -i`
+GTS_AR=libgts.a
+if [ "$HOSTTYPE" = "x86_64" ]; then
+  GTS_SO=/usr/lib64/libgts.so
+  GTS_RLAB_SO=rlabplus_lib64gts.so
+else
+#GTS_SO=/usr/lib/libgts.so
+  GTS_RLAB_SO=rlabplus_libgts.so
+fi
+
+# create so
+# note: CFLAGS have to be the same as those used in building the rlab
+cd gts; make; cd ..
+echo "Building GTS bindings for rlabplus:"
+# rc=`gcc $CFLAGS -fPIC -c rlabplus_gts.c -I$RLAB_SDK -I$GC_RLAB -I/usr/include/glib-2.0/ -I./include/ 2>&1`
+INCGLIB=`pkg-config --cflags glib-2.0`
+rc=`gcc $CFLAGS -fPIC -c rlabplus_gts.c -I$RLAB_SDK -I$GC_RLAB \
+  ${INCGLIB} -I./include/`
+iserr=`echo $rc | grep error`
+[ -z "$iserr" ] || (echo "Errors occurred: Cannot continue!"; exit 2)
+if [ -z "$iserr" ]; then
+  echo -n "Building shared library . "
+#   gcc -Wall -shared -fPIC -o $GTS_RLAB_SO rlabplus_gts.o $GTS_SO
+#   gcc -Wl,--whole-archive $GTS_AR --shared -fPIC -o $GTS_RLAB_SO rlabplus_gts.o
+# qhull:   gcc -shared -o $GTS_RLAB_SO  rlabplus_gts.o -Wl,--whole-archive ${GTS_AR} -Wl,--no-whole-archive -lqhull_r
+
+# with macro definition:
+  gcc -shared -o $GTS_RLAB_SO  rlabplus_gts.o -Wl,--whole-archive ${GTS_AR} -Wl,--no-whole-archive
+  echo " . Done!"
+fi
