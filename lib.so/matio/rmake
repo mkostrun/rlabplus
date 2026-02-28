@@ -1,0 +1,39 @@
+#!/bin/bash
+# rmake for rlabplus: matio
+# (c) Marijan Kostrun, 2006, 2010, 2022
+
+# rlab includes location after systemwide installation
+RLAB_SDK=/usr/local/include/rlab
+
+# garbage collector include directory. part of the rlab includes
+GC_RLAB=$RLAB_SDK/gc
+
+# MATIO static library should exist for 'rmake' to succeed
+MATIO_AR=libmatio.a
+if ! [ -f ${MATIO_AR} ]; then
+  echo "Static MATIO library ${MATIO_AR} does not exist: Execute ./rlab-build script first!"
+  exit 1
+fi
+
+# figure out the name of the rlab-shared library
+HOSTTYPE=`uname -i`
+if [ "$HOSTTYPE" = "x86_64" ]; then
+  MATIO_RLAB_SO=rlabplus_lib64matio.so
+else
+  MATIO_RLAB_SO=rlabplus_libmatio.so
+fi
+
+# create so
+#   it will contain static MATIO and the rlab wrappers as shared object library
+#   so it will not depend on the system wide (if any) installation of matio
+echo "Building MATIO bindings for rlabplus:"
+rc=`gcc $CFLAGS -fPIC -c r_matio.c -I$RLAB_SDK -I$GC_RLAB -I./matio-master/src/`
+iserr=`echo $rc | grep error`
+[ -z "$iserr" ] || (echo "Errors occurred: Cannot continue!"; exit 2)
+if [ -z "$iserr" ]; then
+  echo -n "Building shared library . "
+  rc=`gcc -shared -o $MATIO_RLAB_SO r_matio.o -Wl,--whole-archive ${MATIO_AR} -Wl,--no-whole-archive -lz -lhdf5`
+  [ -z "$iserr" ] || (echo $rc; echo "Errors occurred: Cannot continue!"; exit 2)
+  rm -rf *.o 1>/dev/null 2>&1
+  echo " . Done!"
+fi
