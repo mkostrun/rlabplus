@@ -1,0 +1,47 @@
+#!/bin/bash
+# rmake for rlabplus: fann
+# (c) Marijan Kostrun, 2010, 2023
+
+# rlab includes location after systemwide installation
+RLAB_SDK=/usr/local/include/rlab
+
+# garbage collector include directory. part of the rlab includes
+GC_RLAB=$RLAB_SDK/gc
+
+# KRIPTO static library:
+HOSTTYPE=`uname -i`
+if [ "$HOSTTYPE" = "x86_64" ]; then
+  KRIPTO_RLAB_SO=rlabplus_lib64kripto.so
+else
+  KRIPTO_RLAB_SO=rlabplus_libkripto.so
+fi
+
+#
+# this is soft link to static library
+#
+KRIPTO_AR=libkripto.a
+if [ ! -s `readlink ${KRIPTO_AR}` ]; then
+  echo "Library does not exist: Building it"
+  cd libkripto
+  sh ./build.sh
+  cd ..
+fi
+
+# create so
+#   it will contain static DOUBLEFANN and
+#   the rlab wrappers as shared object library
+#   so it will not depend on the system wide (if any) installation of doublefann
+echo "Building KRIPTO bindings for rlabplus:"
+rc=`gcc $CFLAGS -fPIC -c r_kripto.c -I$RLAB_SDK -I$GC_RLAB -I./include/`
+iserr=`echo $rc | grep error`
+[ -z "$iserr" ] || (echo "Errors occurred: Cannot continue!"; exit 2)
+if [ -z "$iserr" ]; then
+  echo -n "Building shared library . "
+  rc=`gcc -shared -o ${KRIPTO_RLAB_SO}  r_kripto.o -Wl,--whole-archive ${KRIPTO_AR} -Wl,--no-whole-archive`
+  [ -z "$iserr" ] || (echo $rc; echo "Errors occurred: Cannot continue!"; exit 2)
+  rm -rf *.o 1>/dev/null 2>&1
+  echo " . Done!"
+fi
+
+
+
