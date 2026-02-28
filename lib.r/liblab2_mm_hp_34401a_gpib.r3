@@ -1,0 +1,675 @@
+//
+// liblab2_mm_hp_34401a_gpib
+//
+
+if (!exist(ibdev))
+{
+  rfile libgpib.so
+}
+
+static(_THIS_LIB, _LIB_DEBUG);
+if (!exist(_THIS_LIB))
+{
+  _THIS_LIB = "liblab2_mm_hp_34401a_gpib: ";
+}
+if (!exist(_LIB_DEBUG))
+{
+  _LIB_DEBUG = 0;
+}
+
+//
+// local service functions
+//
+static(_read_from_device, _write_to_device, _write_raw);
+_read_from_device = function (gid, n )
+{
+  _THIS_CMD = "_read_from_device";
+  if (exist(n))
+  {
+    rval = ibrd(gid, n);
+    if (_LIB_DEBUG)
+    {
+      printf("%s: %s: %s\n",_THIS_LIB, _THIS_CMD, ...
+          "[" + num2str(rval, "%.0f",",") + "]");
+    }
+  }
+  else
+  {
+    rval = ibrd(gid);
+    if (isempty(rval))
+    {rval="(null)";}
+    chomp(rval);
+    if (_LIB_DEBUG)
+    {
+      printf("%s: %s: %s\n",_THIS_LIB, _THIS_CMD, rval);
+    }
+  }
+  return rval;
+};
+
+_write_to_device = function (gid, _cmd, _pause )
+{
+  rval = "";
+  _THIS_CMD = "_write_to_device";
+
+  if (!exist(_pause))
+  { _pause = 0.0; }
+
+  for (_c in _cmd)
+  {
+    rval = ibwrt(gid, _c + "\n");
+
+    if (_LIB_DEBUG)
+    { printf("%s: %s: %s\n",_THIS_LIB, _THIS_CMD, _c); }
+
+    if (_pause)
+    { sleep(_pause); }
+  }
+
+  return rval;
+};
+
+_write_raw = function (gid, x, fmt)
+{
+  rval = "";
+  _THIS_CMD = "_write_raw";
+
+  rval = ibwrt(gid, x, fmt);
+
+  if (_LIB_DEBUG)
+  {
+    if (type(x)!="int")
+    {
+      printf("%s: %s: %s\n",_THIS_LIB, _THIS_CMD, num2str(x[:]',"%g",","));
+    }
+    else
+    {
+      printf("%s: %s: %s\n",_THIS_LIB, _THIS_CMD, num2str(x[:]',"%i",","));
+    }
+  }
+
+  return rval;
+};
+
+static(_send_query_command_to_device_num,_send_query_command_to_device_char);
+_send_query_command_to_device_num = function (gid, _cmd, x, fmt, csp )
+{
+  _this_solver = "_send_query_command_to_device";
+  if (!exist(fmt))
+  { fmt = "%g"; }
+  if (!exist(csp))
+  { csp = ","; }
+
+  if (!exist(_cmd))
+  { error(_this_solver + ": Missing 1st parameter string 'cmd'. Don't know what to do!"); }
+
+  if (class(_cmd)!="string")
+  { error(_this_solver + ": Missing 1st parameter string 'cmd'. Don't know what to do!"); }
+
+  if (exist(x))
+  {
+    if (class(x) == "num")
+    {
+      _cmd = _cmd + " " + num2str(x,fmt,csp);
+    }
+    else if (class(x) == "string")
+    {
+      _cmd = _cmd + " " + x;
+    }
+    else
+    {
+      error("Don't know what to do!");
+    }
+
+    _write_to_device(gid,_cmd);
+
+    return x;
+  }
+
+  _write_to_device(gid,_cmd + "?");
+  x = _read_from_device(gid);
+  chomp(x);
+  return strtod(x);
+};
+
+_send_query_command_to_device_char = function (gid, _cmd, x, choices )
+{
+  _this_solver = "_send_query_command_to_device";
+
+  if (strlen(_cmd)<1)
+  {
+    error(_this_solver + ": Missing 1st parameter string 'cmd'. Don't know what to do!");
+  }
+
+  if (strlen(x)>0)
+  {
+    x = toupper (x);
+
+    if (!exist(choices))
+    {
+      choices = x;
+    }
+
+    if (choices.nc == 2)
+    {
+      shorthand_choice = choices[;1];
+      fullname_choice = choices[;2];
+    }
+    else if (choices.nc == 1 || choices.nr == 1)
+    {
+      shorthand_choice = choices[:];
+      fullname_choice  = choices[:];
+    }
+    else
+    {
+      error(_this_solver + ": 3rd parameter string array 'choices' must be vector, or two-column!");
+    }
+
+    found = 0;
+    for (i in range(shorthand_choice))
+    {
+      if (strlen(shorthand_choice[i])>0)
+      {
+        if (strindex(x,fullname_choice[i])>0)
+        {
+          _cmd = _cmd + " " + fullname_choice[i];
+          found = 1;
+          break;
+        }
+      }
+    }
+    if (found)
+    {
+      _write_to_device(gid,_cmd);
+      return x;
+    }
+  }
+
+  _write_to_device(gid, _cmd + "?");
+  x = _read_from_device(gid);
+  chomp(x);
+  return x;
+};
+
+mmhp34401aclass = classdef(gpib_major, gpib_opts)
+{
+  static(GPIB_ID,gopts);
+  if (isnumber(gpib_major)<1)
+  {
+    EOF
+  }
+  if (class(gpib_opts)!="list")
+  {
+    gopts = <<>>;
+    gopts.timeout = "T1s";
+    gopts.eos = "\r\n";
+  }
+  else
+  {
+    gopts = gpib_opts
+  }
+  GPIB_ID  = ibdev(0, gpib_major, 0, gopts);
+  static(SAMPLE_COUNT);
+  if (isnumber(SAMPLE_COUNT)<1)
+  {
+    _cmd = "SAMP:COUN";
+    SAMPLE_COUNT = _send_query_command_to_device_num(GPIB_ID,_cmd);
+  }
+  public(debug);
+  debug = function ( val )
+  {
+    if (exist(val))
+    {
+      _LIB_DEBUG = (val > 0);
+    }
+    return _LIB_DEBUG;
+  };
+  // common csp commands
+  public(gpib_id,cls,wait,ese,esr,idn,psc,sre,stb,rcl,lcl,rst,save,tst);
+  gpib_id = function ()
+  {
+    return GPIB_ID;
+  };
+  cls = function()
+  {
+    _cmd = "*CLS";
+    _write_to_device(GPIB_ID, _cmd );
+    return (0);
+  };
+  wait = function()
+  {
+    _cmd = "*WAI";
+    _write_to_device(GPIB_ID, _cmd );
+    return (0);
+  };
+  ese = function( x )
+  {
+    _cmd = "*ESE";
+    return _send_query_command_to_device_num(GPIB_ID, _cmd, x );
+  };
+  esr = function(x)
+  {
+    _cmd = "*ESR";
+    return _send_query_command_to_device_num(GPIB_ID,_cmd, x, "%.0f" );
+  };
+  idn = function()
+  {
+    _cmd = "*IDN";
+    return _send_query_command_to_device_char(GPIB_ID,_cmd );
+  };
+  psc = function( x )
+  {
+    _cmd = "*PSC";
+    return _send_query_command_to_device_num(GPIB_ID,_cmd, x, "%.0f" );
+  };
+  sre = function( x )
+  {
+    _cmd = "*SRE";
+    return _send_query_command_to_device_num(GPIB_ID,_cmd, x, "%.0f" );
+  };
+  stb = function()
+  {
+    _cmd = "*STB";
+    return _send_query_command_to_device_num(GPIB_ID,_cmd );
+  };
+  rcl = function( x )
+  {
+    _cmd = "*RCL";
+    if (!exist(x))
+    { error("Command " + _cmd + " requires parameter!"); }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd, x, "%.0f" );
+  };
+  lcl = function()
+  {
+    ibloc(GPIB_ID);
+    return 0;
+  };
+  rst = function()
+  {
+    _cmd = "*RST";
+    _write_to_device(GPIB_ID, _cmd );
+    return (0);
+  };
+  save = function( x )
+  {
+    _cmd = "*SAV";
+    if (!exist(x))
+    { error("Command " + _cmd + " requires parameter!"); }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd, x, "%.0f" );
+  };
+  tst = function()
+  {
+    _cmd = "*TST?";
+    _write_to_device(GPIB_ID, _cmd );
+    x = _read_from_device(GPIB_ID);
+    return x;
+  };
+  public(meas,func,sens,inp,calc,data,init,trig,sample,read,conf,sys);
+  conf = <<>>;
+  conf.v = <<>>;
+  conf.v.dc = function(r, dr)
+  {
+    if ((isnumber(r)>0)&&(isnumber(dr)>0))
+    {
+      // process range first
+      if (r == 0)
+      {
+        _cmd = "CONF:VOLT:DC MIN, ";
+      }
+      if (isinf(r))
+      {
+        _cmd = "CONF:VOLT:DC MAX, ";
+      }
+      if ( (r > 0) && (r < inf()) )
+      {
+        _cmd = num2str(r, "CONF:VOLT:DC %g, ");
+      }
+      // now process resolution
+      if (dr == 0)
+      {
+        _cmd = _cmd + "MIN";
+      }
+      if (isinf(dr))
+      {
+        _cmd = _cmd + "MAX";
+      }
+      if ( (dr > 0) && (dr < inf()) )
+      {
+        _cmd = _cmd + num2str(dr, "%g");
+      }
+      return _write_to_device(GPIB_ID,_cmd);
+    }
+    return 1;
+  };
+  meas = <<>>;
+  meas.dc = <<>>;
+  meas.dc.v = <<>>;
+  meas.dc.v.val = function()
+  {
+    _cmd = "MEAS:VOLT:DC";
+    return _send_query_command_to_device_num(GPIB_ID, _cmd);
+  };
+  meas.dc.v.nplcycles = function(f)
+  {
+    _cmd = "VOLT:DC:NPLC";
+    if (isnumber(f)>0)
+    {
+      if (any(f==[0.02, 0.2, 1, 10, 100]))
+      {
+        return _send_query_command_to_device_num(GPIB_ID,_cmd, f, "%g" );
+      }
+    }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  meas.dc.v.res = function(f)
+  {
+    _cmd = "VOLT:DC:RES";
+    if (isnumber(f)>0)
+    {
+      return _send_query_command_to_device_num(GPIB_ID,_cmd, f, "%g" );
+    }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  meas.dc.i = <<>>;
+  meas.dc.i.val = function()
+  {
+    _cmd = "MEAS:CURR:DC";
+    return _send_query_command_to_device_num(GPIB_ID, _cmd);
+  };
+  meas.dc.i.nplcycles = function(f)
+  {
+    _cmd = "CURR:DC:NPLC";
+    if (isnumber(f)>0)
+    {
+      if (any(f==[0.02, 0.2, 1, 10, 100]))
+      {
+        return _send_query_command_to_device_num(GPIB_ID,_cmd, f, "%g" );
+      }
+    }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  meas.dc.i.res = function(f)
+  {
+    _cmd = "CURR:DC:RES";
+    if (isnumber(f)>0)
+    {
+      return _send_query_command_to_device_num(GPIB_ID,_cmd, f, "%g" );
+    }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  meas.ac = <<>>;
+  meas.ac.v = <<>>;
+  meas.ac.v.val = function()
+  {
+    _cmd = "MEAS:VOLT:AC";
+    return _send_query_command_to_device_num(GPIB_ID, _cmd);
+  };
+  meas.ac.v.nplcycles = function(f)
+  {
+    _cmd = "VOLT:AC:NPLC";
+    if (isnumber(f)>0)
+    {
+      if (any(f==[0.02, 0.2, 1, 10, 100]))
+      {
+        return _send_query_command_to_device_num(GPIB_ID,_cmd, f, "%g" );
+      }
+    }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  meas.ac.v.res = function(f)
+  {
+    _cmd = "VOLT:AC:RES";
+    if (isnumber(f)>0)
+    {
+      return _send_query_command_to_device_num(GPIB_ID,_cmd, f, "%g" );
+    }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  meas.ac.i = <<>>;
+  meas.ac.i.val = function()
+  {
+    _cmd = "MEAS:CURR:AC";
+    return _send_query_command_to_device_num(GPIB_ID, _cmd);
+  };
+  meas.ac.i.nplcycles = function(f)
+  {
+    _cmd = "CURR:AC:NPLC";
+    if (isnumber(f)>0)
+    {
+      if (any(f==[0.02, 0.2, 1, 10, 100]))
+      {
+        return _send_query_command_to_device_num(GPIB_ID,_cmd, f, "%g" );
+      }
+    }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  meas.ac.i.res = function(f)
+  {
+    _cmd = "CURR:AC:RES";
+    if (isnumber(f)>0)
+    {
+      return _send_query_command_to_device_num(GPIB_ID,_cmd, f, "%g" );
+    }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  meas.r = function()
+  {
+    _cmd = "MEAS:RES";
+    return _send_query_command_to_device_num(GPIB_ID, _cmd);
+  };
+  meas.f = function()
+  {
+    _cmd = "MEAS:FREQ";
+    return _send_query_command_to_device_num(GPIB_ID, _cmd);
+  };
+  meas.t = function()
+  {
+    _cmd = "MEAS:PER";
+    return _send_query_command_to_device_num(GPIB_ID, _cmd);
+  };
+  meas.cont = function()
+  {
+    _cmd = "MEAS:CONT";
+    return _send_query_command_to_device_num(GPIB_ID, _cmd);
+  };
+  meas.diode = function()
+  {
+    _cmd = "MEAS:DIOD";
+    return _send_query_command_to_device_num(GPIB_ID, _cmd);
+  };
+  sens = <<>>;
+  sens.bandwidth = function(f)
+  {
+    _cmd = "SENS:DET:BAND";
+    if (isnumber(f)>0)
+    {
+      if (any(f==[0, 3, 20, 200, inf()]))
+      {
+        if (f == 0)
+        {
+          _cmd = _cmd + " MIN";
+          return _send_query_command_to_device_num(GPIB_ID,_cmd);
+        }
+        if (isinf(f))
+        {
+          _cmd = _cmd + " MAX";
+          return _send_query_command_to_device_num(GPIB_ID,_cmd);
+        }
+        return _send_query_command_to_device_num(GPIB_ID,_cmd, f, "%g" );
+      }
+    }
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  sens.autozero = <<>>;
+  sens.autozero.on = function()
+  {
+    _cmd = "SENS:ZERO:AUTO ON";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  sens.autozero.off = function()
+  {
+    _cmd = "SENS:ZERO:AUTO OFF";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  sens.autozero.once = function()
+  {
+    _cmd = "SENS:ZERO:AUTO ONCE";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  inp = <<>>;
+  inp.imp = <<>>;
+  inp.imp.auto = <<>>;
+  inp.imp.auto.on = function()
+  {
+    _cmd = "INP:IMP:AUTO ON";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  inp.imp.auto.off = function()
+  {
+    _cmd = "INP:IMP:AUTO OFF";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  calc = <<>>;
+  calc.func = <<>>;
+  calc.func.null = function()
+  {
+    _cmd = "CALC:FUNC NULL";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  calc.func.avg = function()
+  {
+    _cmd = "CALC:FUNC AVER";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  calc.func.limit = function()
+  {
+    _cmd = "CALC:FUNC LIM";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  calc.state = <<>>;
+  calc.state.on = function()
+  {
+    _cmd = "CALC:STAT ON";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  calc.state.off = function()
+  {
+    _cmd = "CALC:STAT OFF";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  calc.avg = <<>>;
+  calc.avg.min = function ()
+  {
+    _cmd = "CALC:AVER:MIN";
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  calc.avg.max = function ()
+  {
+    _cmd = "CALC:AVER:MAX";
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  calc.avg.avg = function ()
+  {
+    _cmd = "CALC:AVER:AVER";
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  calc.avg.count = function ()
+  {
+    _cmd = "CALC:AVER:COUN";
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  data = <<>>;
+  data.store = function(f)
+  {
+    _cmd = "DATA:FEED RDG_STORE, \"\"";
+    if (isnumber(f)>0)
+    {
+      if (f)
+      {
+        _cmd = "DATA:FEED RDG_STORE, \"CALC\"";
+      }
+    }
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  data.fetch = function()
+  {
+    _cmd = "FETC?";
+    _write_to_device(GPIB_ID, _cmd);
+    rval = _read_from_device(GPIB_ID);
+    if (strlen(rval)>0)
+    {
+      chomp(rval);
+      rval = strtod(rval,<<csp=",";lstrip="'BLANK">>);
+    }
+    return rval;
+  };
+  data.npoints = function()
+  {
+    _cmd = "DATA:POINT";
+    return _send_query_command_to_device_num(GPIB_ID,_cmd);
+  };
+  init = function( new_val )
+  {
+    _cmd = "INIT";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  read = function( new_val )
+  {
+    if (isnumber(new_val) > 0 )
+    {
+      if (new_val != SAMPLE_COUNT)
+      {
+        _cmd = num2str(new_val, "SAMP:COUN %.0f");
+        _write_to_device(GPIB_ID, _cmd);
+        _read_from_device(GPIB_ID);
+        //
+        SAMPLE_COUNT = _send_query_command_to_device_num(GPIB_ID,"SAMP:COUN");
+      }
+    }
+    _cmd = "READ?";
+    rval = zeros(SAMPLE_COUNT,1);
+    _write_to_device(GPIB_ID, _cmd);
+    for (i in 1:SAMPLE_COUNT)
+    {
+      rval[i] = strtod(_read_from_device(GPIB_ID));
+    }
+    return rval;
+  };
+  trig = <<>>;
+  trig.src = <<>>;
+  trig.src.bus = function()
+  {
+    _cmd = "TRIG:SOUR BUS";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  trig.src.ext = function()
+  {
+    _cmd = "TRIG:SOUR EXT";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  trig.src.imm = function()
+  {
+    _cmd = "TRIG:SOUR IMM";
+    return _write_to_device(GPIB_ID, _cmd);
+  };
+  sample = <<>>;
+  sample.count = function (f)
+  {
+    _cmd = "SAMP:COUN";
+    if (isnumber(f)>0)
+    {
+      _send_query_command_to_device_num(GPIB_ID,_cmd, f, "%g" );
+    }
+    SAMPLE_COUNT = _send_query_command_to_device_num(GPIB_ID,_cmd);
+    return SAMPLE_COUNT;
+  };
+  sys = <<>>;
+  sys.err = function()
+  {
+    _cmd = "SYST:ERR";
+    return _send_query_command_to_device_char(GPIB_ID,_cmd);
+  };
+};
+
+
+
