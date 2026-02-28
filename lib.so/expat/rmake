@@ -1,0 +1,28 @@
+#!/bin/bash
+# rmake for rlabplus: ngspice
+# (c) Marijan Kostrun, 2013, 2023
+
+# rlab source location
+RLAB_SDK=/usr/local/include/rlab
+
+# garbage collector include directory. part of the rlab source tree.
+GC_RLAB=$RLAB_SDK/gc
+
+EXPAT_SO=-lexpat
+HOSTTYPE=`uname -i`
+if [ "$HOSTTYPE" = "x86_64" ]; then
+  EXPAT_RLAB_SO=rlabplus_lib64expat.so
+else
+  EXPAT_RLAB_SO=rlabplus_libexpat.so
+fi
+
+# create so
+# note: CFLAGS have to be the same as those used in building the rlab
+echo -n "Building EXPAT bindings for rlabplus"
+rc=`gcc $CFLAGS -fPIC -c r_expat.c -I$RLAB_SDK -I$GC_RLAB -I./include -I./ 2>&1`
+[ -z "$rc" ] || (echo "$rc"; exit)
+if [ -z "$rc" ]; then
+  gcc -Wall -shared -fPIC -o $EXPAT_RLAB_SO r_expat.o $EXPAT_SO
+  rm r_expat.o
+  echo " . Done!"
+fi

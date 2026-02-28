@@ -1,0 +1,28 @@
+#!/bin/bash
+# rmake for rlabplus: glpk
+# (c) Marijan Kostrun, 2014, 2023
+
+# rlab source location
+RLAB_SDK=/usr/local/include/rlab
+
+# garbage collector include directory. part of the rlab source tree.
+GC_RLAB=$RLAB_SDK/gc
+
+GLPK_SO="-lglpk"
+HOSTTYPE=`uname -i`
+if [ "$HOSTTYPE" = "x86_64" ]; then
+  GLPK_RLAB_SO=rlabplus_lib64glpk.so
+else
+  GLPK_RLAB_SO=rlabplus_libglpk.so
+fi
+
+# create so
+# note: CFLAGS have to be the same as those used in building the rlab
+echo -n "Building GLPK bindings for rlabplus"
+rc=`gcc $CFLAGS -fPIC -c r_glpk.c -I$RLAB_SDK -I$GC_RLAB -I./include 2>&1`
+[ -z "$rc" ] || (echo "$rc"; exit)
+if [ -z "$rc" ]; then
+  gcc -Wall -shared -fPIC -o $GLPK_RLAB_SO r_glpk.o $GLPK_SO
+  rm r_glpk.o
+  echo " . Done!"
+fi

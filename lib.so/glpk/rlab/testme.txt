@@ -1,0 +1,47 @@
+Problem:    
+Rows:       8
+Columns:    7
+Non-zeros:  48
+Status:     OPTIMAL
+Objective:  296.2166065 (MINimum)
+
+   No.   Row name   St   Activity     Lower bound   Upper bound    Marginal
+------ ------------ -- ------------- ------------- ------------- -------------
+     1 r[1]         NS          2000          2000             =    -0.0135957 
+     2 r[2]         NU            60                          60      -2.56823 
+     3 r[3]         B        83.9675                         100 
+     4 r[4]         NU            40                          40     -0.544404 
+     5 r[5]         B        19.9603                          30 
+     6 r[6]         NL          1500          1500                    0.251986 
+     7 r[7]         NL           250           250                    0.485199 
+     8 r[8]         B            250                         300 
+
+   No. Column name  St   Activity     Lower bound   Upper bound    Marginal
+------ ------------ -- ------------- ------------- ------------- -------------
+     1 x[1]         NL             0             0           200      0.253625 
+     2 x[2]         B        665.343             0          2500 
+     3 x[3]         B        490.253           400           800 
+     4 x[4]         B        424.188           100           700 
+     5 x[5]         NL             0             0          1500      0.014556 
+     6 x[6]         B        299.639             0               
+     7 x[7]         B        120.578             0               
+
+Karush-Kuhn-Tucker optimality conditions:
+
+KKT.PE: max.abs.err = 2.27e-13 on row 1
+        max.rel.err = 8.68e-17 on row 5
+        High quality
+
+KKT.PB: max.abs.err = 0.00e+00 on row 0
+        max.rel.err = 0.00e+00 on row 0
+        High quality
+
+KKT.DE: max.abs.err = 5.55e-17 on column 3
+        max.rel.err = 3.75e-17 on column 3
+        High quality
+
+KKT.DB: max.abs.err = 0.00e+00 on row 0
+        max.rel.err = 0.00e+00 on row 0
+        High quality
+
+End of output

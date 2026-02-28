@@ -1,0 +1,11 @@
+\* Problem: Unknown *\
+
+Maximize
+ obj: + 10 x(1) + 6 x(2) + 4 x(3)
+
+Subject To
+ r(1): + x(3) + x(2) + x(1) <= 100
+ r(2): + 5 x(3) + 4 x(2) + 10 x(1) <= 600
+ r(3): + 6 x(3) + 2 x(2) + 2 x(1) <= 300
+
+End
