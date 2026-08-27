@@ -94,7 +94,7 @@ p = <<>>;
 p.f = f;
 p.a = a;
 
-// setup ngspice for external voltage source
+// setup synchronous ngspice for external current source
 _ngspice_setup = <<>>;
 _ngspice_setup.stdout = term();
 _ngspice_setup.sync = <<>>;
