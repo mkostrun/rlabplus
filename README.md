@@ -9,10 +9,8 @@ provides a syntax update with some internal and organizational changes compared 
 [**_RLaB2_**](https://rlab.sourceforge.net), as developed by Ian Searle.
 The projects support 32- and 64-bit linux systems, for AMD, Intel and arm/RaspberryPi.
 
-Basically, the solvers within the **lib.so** sub-project are intended for problems that may be of interest
-to smaller groups of people.
-
-The project comprise the following solver libraries:
+The solvers provided as a part of **lib.so** sub-project are intended for problems that may be of interest
+to smaller groups of people. The project comprise the following solver libraries:
 
 - _gpib_ - GPIB (Hewlett-Packard's General Purpose Interface Bus, for those who still use it and remember it)
 for hardware and instrumentation control: **_RLaB2_**/**_RLaB3_** wrapper for [linux-gpib](https://sourceforge.net/projects/linux-gpib).
