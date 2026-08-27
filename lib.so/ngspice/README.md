@@ -53,6 +53,7 @@ The functions from the list ngspice are discussed in the manual *ngspice-manual.
 ### 3. Example Script
 
 ![electronic circuit](/lib.so/ngspice/art/isrc_1.png)
+
 Consider an electronic circuit shown in the figure above. To make things more
 interesting, we assume that *i1* source is external.
 
@@ -81,8 +82,6 @@ spicecir = [ ...
   ".end", ...
 []];
 
-spicecir' ?
-
 fn_isrc = function(t,p)
 {
   global(pi);
@@ -107,7 +106,7 @@ ngspice.runckt(spicecir);
 s = ngspice.getvals();
 
 ```
-
+For comparison, python equivalent of this script is given [here](https://pyspice.fabrice-salvaire.fr/releases/v1.4/examples/ngspice-shared/external-source.html).
 
 
 
