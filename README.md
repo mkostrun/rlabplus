@@ -9,7 +9,8 @@ provides a syntax update with some internal and organizational changes compared 
 [**_RLaB2_**](https://rlab.sourceforge.net), as developed by Ian Searle.
 The projects support 32- and 64-bit linux systems, for AMD, Intel and arm/RaspberryPi.
 
-The solvers that are part of **lib.so** sub-project are here because they require additional special topic libraries to be installed by the user. These libraries need not be part of standard linux distribution (e.g., gpib), or are too specific to be installed by default when installing linux. 
+The solvers that are part of **lib.so** sub-project are here because they require additional special topic shared libraries to be installed by the user. These special topic libraries need not be part of standard linux distribution (e.g., gpib), are too specific to be installed by default when installing linux (ngpsice, gts, gphoto2, glpk), or have a branch provided together with the rlab shared library (matio, kripto) where the library itself is built as .a and then embedded in the rlab's shared object library in the final form.
+
 The project provides the following solver libraries:
 
 - _gpib_ - GPIB (Hewlett-Packard's General Purpose Interface Bus, for those who still use it and remember it)
