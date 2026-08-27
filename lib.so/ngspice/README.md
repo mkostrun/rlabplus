@@ -106,7 +106,7 @@ ngspice.runckt(spicecir);
 s = ngspice.getvals();
 
 ```
-For comparison, python equivalent of this script is given [here](https://pyspice.fabrice-salvaire.fr/releases/v1.4/examples/ngspice-shared/external-source.html).
+For comparison, python version of this script with external voltage source is given [here](https://pyspice.fabrice-salvaire.fr/releases/v1.4/examples/ngspice-shared/external-source.html).
 
 
 
