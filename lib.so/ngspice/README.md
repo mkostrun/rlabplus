@@ -52,5 +52,5 @@ The functions from the list ngspice are discussed in the manual *ngspice-manual.
 
 ### 3. Example Script
 
-Consider an ![electronic circuit](/art/isrc_1.png)
+Consider an ![electronic circuit](/lib.so/ngspice/art/isrc_1.png)
 
