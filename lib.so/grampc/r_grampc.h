@@ -56,12 +56,14 @@
 #define RLAB_NAME_GRAMPC_DHTDP  "dhtdp"
 #define RLAB_NAME_GRAMPC_DHTDT  "dhtdt"
 #define RLAB_NAME_GRAMPC_M      "mass"
-#define RLAB_NAME_GRAMPC_MTR    "masstr"
+#define RLAB_NAME_GRAMPC_DHDXDT "dhdxdt"
+
 // options
 #define RLAB_NAME_GRAMPC_OPTS_PARAMS  "p"
 #define RLAB_NAME_GRAMPC_OPTS_PARAMS_MIN  "pmin"
 #define RLAB_NAME_GRAMPC_OPTS_PARAMS_MAX  "pmax"
-#define RLAB_NAME_GRAMPC_OPTS_X0DES   "xdes"
+#define RLAB_NAME_GRAMPC_OPTS_X0DES         "xdes"
+#define RLAB_NAME_GRAMPC_OPTS_X0DES_TBKPT   "bkpt"
 #define RLAB_NAME_GRAMPC_OPTS_U0DES   "udes"
 #define RLAB_NAME_GRAMPC_OPTS_UMAX    "umax"
 #define RLAB_NAME_GRAMPC_OPTS_UMIN    "umin"
@@ -80,6 +82,8 @@
 #define RLAB_NAME_GRAMPC_OPTS_PENDECFAC           "PenaltyDecreaseFactor"
 #define RLAB_NAME_GRAMPC_OPTS_PENTHR              "PenaltyIncreaseThreshold"
 #define RLAB_NAME_GRAMPC_OPTS_GRT_CONV            "ConvergenceGradientRelTol"
+#define RLAB_NAME_GRAMPC_OPTS_INT                 "integrator"
+#define RLAB_NAME_GRAMPC_OPTS_INT_FLAGS           "flags"
 #define RLAB_NAME_GRAMPC_OPTS_INT_RELTOL          RLAB_NAME_GEN_EREL
 #define RLAB_NAME_GRAMPC_OPTS_INT_ABSTOL          RLAB_NAME_GEN_EABS
 #define RLAB_NAME_GRAMPC_OPTS_INT_STEP_MINSIZE    "minstep"
@@ -156,47 +160,49 @@ struct _grampc_table
   int     Ngt;  // dimension of inequality constraints at T
   int     Nc;   // number of constraints
   // system functions
+  // F -> ODE FUNCTIONS
   bool    have_ffct;
   bool    have_dfdu;
   bool    have_dfdp;
-  //
+  //  // additional functions required for semi-implicit systems
+  bool    have_dfdx;
+  bool    have_dfdt;  
+  bool    have_dfdxtrans;
+  // L -> COST FUNCTIONS
   bool    have_lfct;
   bool    have_dldx;
   bool    have_dldu;
   bool    have_dldp;
-  //
+  //  V -> TERMINAL COST FUNCTIONS
   bool    have_Vfct;
   bool    have_dVdx;
   bool    have_dVdp;
   bool    have_dVdT;
-  // equality constraints: on [0,T>
-  bool    have_gfct;
-  bool    have_dgdx;
-  bool    have_dgdu;
-  bool    have_dgdp;
   // inequality constraints on [0,T>
   bool    have_hfct;
   bool    have_dhdx;
   bool    have_dhdu;
   bool    have_dhdp;
-  // equality constraints: at T
-  bool    have_gTfct;
-  bool    have_dgTdx;
-  bool    have_dgTdp;
-  bool    have_dgTdT;
   // inequality constraints at T
   bool    have_hTfct;
   bool    have_dhTdx;
   bool    have_dhTdp;
   bool    have_dhTdT;
+  // equality constraints: on [0,T>
+  bool    have_gfct;
+  bool    have_dgdx;
+  bool    have_dgdu;
+  bool    have_dgdp;
+  // equality constraints: at T
+  bool    have_gTfct;
+  bool    have_dgTdx;
+  bool    have_dgTdp;
+  bool    have_dgTdT;
   // additional functions required for semi-implicit systems
-  bool    have_dfdx;
-  bool    have_dfdxtrans;
-  bool    have_dfdt;
   bool    have_dHdxdt;
   bool    have_Mfct;
   bool    have_Mtrans;
-
+  
   // rlab starts here
   r_extern_func_args ext_f_args;
   // f - ODE function
@@ -224,7 +230,7 @@ struct _grampc_table
   Ent * ent_fn_hfct;
   Ent * ent_fn_dhdx;
   Ent * ent_fn_dhdu;
-  Ent * ent_fn_dhdp;
+  Ent * ent_fn_dhdp;  
   // gT - equality function, terminal
   Ent * ent_fn_gTfct;
   Ent * ent_fn_dgTdx;
@@ -235,10 +241,9 @@ struct _grampc_table
   Ent * ent_fn_dhTdx;
   Ent * ent_fn_dhTdp;
   Ent * ent_fn_dhTdT;
-  Ent * ent_fn_dHdxdt;
-  // mass function, for some problems
+  // additional functions required for semi-implicit systems  
   Ent * ent_fn_Mfct;
-  Ent * ent_fn_Mtrans;
+  Ent * ent_fn_dHdxdt;
 };
 
 typedef struct _grampc_table GRAMPC_TABLE;

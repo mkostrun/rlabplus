@@ -55,7 +55,7 @@ Ent * ent_grampc(int nargs, Datum args[])
 {
   Ent *e1=0, *e2=0, *e3=0, *e4=0, *e5=0, *ex=0, *rent=0;
 
-  MDR *x0=0, *u0=0, *xdes_mdr=0, *udes_mdr=0, *umax=0, *umin=0, *cat=0, *cat_mdr=0;
+  MDR *x0=0, *u0=0, *xdes_mdr=0, *bkpt_mdr=0, *udes_mdr=0, *umax=0, *umin=0, *cat=0, *cat_mdr=0;
   MDR *x_sol_mdr=0, *u_sol_mdr=0, *c_sol_mdr=0, *p_mdr_max=0, *p_mdr_min=0;
   MDR *x_pred_mdr=0, *u_pred_mdr=0, *c_pred_mdr=0;
 
@@ -72,8 +72,8 @@ Ent * ent_grampc(int nargs, Datum args[])
   int Nx=0, Nu=0, Nh=0, Ng=0, Nht=0, Ngt=0, Ntm=0, Np=0, Nc=0, i, j, k;
   int Nhor=-1, MaxMultIter=-1, MaxGradIter=-1, maxi=10000000, optimtime=0, estpenmin=0;
   int scaleproblem=0, ShiftControl=1, OptimControl=1, OptimParam=0, OptimTime=0, MaxIter=-1;
-  int i_counttnexttmin=0, icount=0;
-  char *outs=0, method=2;
+  int i_counttnexttmin=0, icount=0, method=2, iflags[8], nbkpt=0;
+  char *outs=0, *integrator=NULL;
   ListNode *node;
 
   MDR *t_mdr=0, *x_mdr=0, *x_des_mdr=0, *u_mdr=0, *u_des_mdr=0, *p_mdr=0;
@@ -113,118 +113,12 @@ Ent * ent_grampc(int nargs, Datum args[])
   }
 
   // process functions from the list in logical order
-  // dVdT:
-  gdata.ent_fn_dVdT = NULL;
-  gdata.have_dVdT = 0;
-  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DVDT);
-  if (node)
-  {
-    ex = var_ent(node);
-    if (!isfuncent(ex))
-    {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
-    }
-    gdata.ent_fn_dVdT = ex;
-    gdata.have_dVdT = 1;
-  }
-  // dVdp:
-  gdata.ent_fn_dVdp = NULL;
-  gdata.have_dVdp = 0;
-  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DVDP);
-  if (node)
-  {
-    ex = var_ent(node);
-    if (!isfuncent(ex))
-    {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
-    }
-    gdata.ent_fn_dVdp = ex;
-    gdata.have_dVdp = 1;
-  }
-  // dVdx:
-  gdata.ent_fn_dVdx = NULL;
-  gdata.have_dVdx = 0;
-  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DVDX);
-  if (node)
-  {
-    ex = var_ent(node);
-    if (!isfuncent(ex))
-    {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
-    }
-    gdata.ent_fn_dVdx = ex;
-    gdata.have_dVdx = 1;
-  }
-  // Vfct:
-  gdata.ent_fn_Vfct = NULL;
-  gdata.have_Vfct = 0;
-  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_VFCT);
-  if (node)
-  {
-    ex = var_ent(node);
-    if (!isfuncent(ex))
-    {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
-    }
-    gdata.ent_fn_Vfct = ex;
-    gdata.have_Vfct = 1;
-  }
-  // dldp:
-  gdata.ent_fn_dldp = NULL;
-  gdata.have_dldp = 0;
-  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DLDP);
-  if (node)
-  {
-    ex = var_ent(node);
-    if (!isfuncent(ex))
-    {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
-    }
-    gdata.ent_fn_dldp = ex;
-    gdata.have_dldp = 1;
-  }
-  // dldu:
-  gdata.ent_fn_dldu = NULL;
-  gdata.have_dldu = 0;
-  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DLDU);
-  if (node)
-  {
-    ex = var_ent(node);
-    if (!isfuncent(ex))
-    {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
-    }
-    gdata.ent_fn_dldu = ex;
-    gdata.have_dldu = 1;
-  }
-  // dldx:
-  gdata.ent_fn_dldx = NULL;
-  gdata.have_dldx = 0;
-  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DLDX);
-  if (node)
-  {
-    ex = var_ent(node);
-    if (!isfuncent(ex))
-    {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
-    }
-    gdata.ent_fn_dldx = ex;
-    gdata.have_dldx = 1;
-  }
-  // lfct:
-  gdata.ent_fn_lfct = NULL;
-  gdata.have_lfct = 0;
-  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_LFCT );
-  if (node)
-  {
-    ex = var_ent(node);
-    if (!isfuncent(ex))
-    {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
-    }
-    gdata.ent_fn_lfct = ex;
-    gdata.have_lfct = 1;
-  }
+
+  //**************************************************
+  //
+  // F -> ODE FUNCTIONS
+  //
+  //**************************************************
   // ffct:
   gdata.ent_fn_ffct = NULL;
   gdata.have_ffct = 0;
@@ -232,26 +126,11 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_ffct = ex;
+      gdata.have_ffct = 1;
     }
-    gdata.ent_fn_ffct = ex;
-    gdata.have_ffct = 1;
-  }
-  // dfdx:
-  gdata.ent_fn_dfdx = NULL;
-  gdata.have_dfdx = 0;
-  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DFDX );
-  if (node)
-  {
-    ex = var_ent(node);
-    if (!isfuncent(ex))
-    {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
-    }
-    gdata.ent_fn_dfdx = ex;
-    gdata.have_dfdx = 1;
   }
   // dfdu:
   gdata.ent_fn_dfdu = NULL;
@@ -260,12 +139,24 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_dfdu = ex;
+      gdata.have_dfdu = 1;
     }
-    gdata.ent_fn_dfdu = ex;
-    gdata.have_dfdu = 1;
+  }
+  // dfdx:
+  gdata.ent_fn_dfdx = NULL;
+  gdata.have_dfdx = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DFDX );
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dfdx = ex;
+      gdata.have_dfdx = 1;
+    }
   }
   // dfdt:
   gdata.ent_fn_dfdt = NULL;
@@ -274,13 +165,134 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_dfdt = ex;
+      gdata.have_dfdt = 1;
     }
-    gdata.ent_fn_dfdt = ex;
-    gdata.have_dfdt = 1;
   }
+
+  //**************************************************
+  //
+  // l -> COST FUNCTIONS
+  //
+  //**************************************************
+  // lfct:
+  gdata.ent_fn_lfct = NULL;
+  gdata.have_lfct = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_LFCT );
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_lfct = ex;
+      gdata.have_lfct = 1;
+    }
+  }
+  // dldx:
+  gdata.ent_fn_dldx = NULL;
+  gdata.have_dldx = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DLDX);
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dldx = ex;
+      gdata.have_dldx = 1;
+    }
+  }
+  // dldu:
+  gdata.ent_fn_dldu = NULL;
+  gdata.have_dldu = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DLDU);
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dldu = ex;
+      gdata.have_dldu = 1;
+    }
+  }
+  // dldp:
+  gdata.ent_fn_dldp = NULL;
+  gdata.have_dldp = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DLDP);
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dldp = ex;
+      gdata.have_dldp = 1;
+    }
+  }
+
+  //**************************************************
+  //
+  // V -> TERMINAL COST FUNCTIONS
+  //
+  //**************************************************
+  // Vfct:
+  gdata.ent_fn_Vfct = NULL;
+  gdata.have_Vfct = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_VFCT);
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_Vfct = ex;
+      gdata.have_Vfct = 1;
+    }
+  }
+  // dVdx:
+  gdata.ent_fn_dVdx = NULL;
+  gdata.have_dVdx = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DVDX);
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dVdx = ex;
+      gdata.have_dVdx = 1;
+    }
+  }
+  // dVdp:
+  gdata.ent_fn_dVdp = NULL;
+  gdata.have_dVdp = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DVDP);
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dVdp = ex;
+      gdata.have_dVdp = 1;
+    }
+  }
+  // dVdT:
+  gdata.ent_fn_dVdT = NULL;
+  gdata.have_dVdT = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DVDT);
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dVdT = ex;
+      gdata.have_dVdT = 1;
+    }
+  }
+
+  //**************************************************
+  //
+  // H -> INEQUALITY CONSTRAINTS ON [0,T>]
+  //
+  //**************************************************
   // hfct:
   gdata.ent_fn_hfct = NULL;
   gdata.have_hfct = 0;
@@ -289,12 +301,11 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_hfct = ex;
+      gdata.have_hfct = 1;
     }
-    gdata.ent_fn_hfct = ex;
-    gdata.have_hfct = 1;
   }
   // dhdx:
   gdata.ent_fn_dhdx = NULL;
@@ -303,12 +314,11 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_dhdx = ex;
+      gdata.have_dhdx = 1;
     }
-    gdata.ent_fn_dhdx = ex;
-    gdata.have_dhdx = 1;
   }
   // dhdu:
   gdata.ent_fn_dhdu = NULL;
@@ -317,13 +327,31 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_dhdu = ex;
+      gdata.have_dhdu = 1;
     }
-    gdata.ent_fn_dhdu = ex;
-    gdata.have_dhdu = 1;
   }
+  // dhdp:
+  gdata.ent_fn_dhdp = NULL;
+  gdata.have_dhdp = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DHDP );
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dhdp = ex;
+      gdata.have_dhdp = 1;
+    }
+  }
+
+  //**************************************************
+  //
+  // HT -> TERMINAL INEQUALITY CONSTRAINTS
+  //
+  //**************************************************
   // hTfct:
   gdata.ent_fn_hTfct = NULL;
   gdata.have_hTfct = 0;
@@ -332,12 +360,11 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_hTfct = ex;
+      gdata.have_hTfct = 1;
     }
-    gdata.ent_fn_hTfct = ex;
-    gdata.have_hTfct = 1;
   }
   // dhTdx:
   gdata.ent_fn_dhTdx = NULL;
@@ -346,12 +373,11 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_dhTdx = ex;
+      gdata.have_dhTdx = 1;
     }
-    gdata.ent_fn_dhTdx = ex;
-    gdata.have_dhTdx = 1;
   }
   // dhTdp:
   gdata.ent_fn_dhTdp = NULL;
@@ -360,12 +386,11 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_dhTdp = ex;
+      gdata.have_dhTdp = 1;
     }
-    gdata.ent_fn_dhTdp = ex;
-    gdata.have_dhTdp = 1;
   }
   // dhTdT:
   gdata.ent_fn_dhTdT = NULL;
@@ -374,13 +399,18 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_dhTdT = ex;
+      gdata.have_dhTdT = 1;
     }
-    gdata.ent_fn_dhTdT = ex;
-    gdata.have_dhTdT = 1;
   }
+
+  //**************************************************
+  //
+  // G -> EQUALITY CONSTRAINTS ON [0,T>]
+  //
+  //**************************************************
   // gfct:
   gdata.ent_fn_gfct = NULL;
   gdata.have_gfct = 0;
@@ -389,13 +419,60 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_gfct = ex;
+      gdata.have_gfct = 1;
     }
-    gdata.ent_fn_gfct = ex;
-    gdata.have_gfct = 1;
   }
+  // dgdx:
+  gdata.ent_fn_dgdx = NULL;
+  gdata.have_dgdx = 0;
+  gdata.Ng = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DGDX );
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dgdx = ex;
+      gdata.have_dgdx = 1;
+    }
+  }
+  // dgdu:
+  gdata.ent_fn_dgdu = NULL;
+  gdata.have_dgdu = 0;
+  gdata.Ng = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DGDU );
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dgdu = ex;
+      gdata.have_dgdu = 1;
+    }
+  }
+  // dgdp:
+  gdata.ent_fn_dgdp = NULL;
+  gdata.have_dgdp = 0;
+  gdata.Ng = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DGDP );
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_dgdp = ex;
+      gdata.have_dgdp = 1;
+    }
+  }
+
+  //**************************************************
+  //
+  // GT -> TERMINAL EQUALITY CONSTRAINTS
+  //
+  //**************************************************
   // gTfct:
   gdata.ent_fn_gTfct = NULL;
   gdata.have_gTfct = 0;
@@ -403,12 +480,11 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_gTfct = ex;
+      gdata.have_gTfct = 1;
     }
-    gdata.ent_fn_gTfct = ex;
-    gdata.have_gTfct = 1;
   }
   // dgTdx:
   gdata.ent_fn_dgTdx = NULL;
@@ -417,12 +493,11 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_dgTdx = ex;
+      gdata.have_dgTdx = 1;
     }
-    gdata.ent_fn_dgTdx = ex;
-    gdata.have_dgTdx = 1;
   }
   // dgTdp:
   gdata.ent_fn_dgTdp = NULL;
@@ -431,12 +506,11 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (node)
   {
     ex = var_ent(node);
-    if (!isfuncent(ex))
+    if (isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_dgTdp = ex;
+      gdata.have_dgTdp = 1;
     }
-    gdata.ent_fn_dgTdp = ex;
-    gdata.have_dgTdp = 1;
   }
   // dgTdT:
   gdata.ent_fn_dgTdT = NULL;
@@ -447,10 +521,41 @@ Ent * ent_grampc(int nargs, Datum args[])
     ex = var_ent(node);
     if (!isfuncent(ex))
     {
-      printf (THIS_SOLVER ": " RLAB_ERROR_ARG1_FUNC_VAR "\n");
+      gdata.ent_fn_dgTdT = ex;
+      gdata.have_dgTdT = 1;
     }
-    gdata.ent_fn_dgTdT = ex;
-    gdata.have_dgTdT = 1;
+  }
+
+  //**************************************************
+  //
+  // ADDITIONAL FUNCTIONS REQUIRED FOR SEMI-IMPLICITE SYSTEMS
+  //
+  //**************************************************
+  // dHdxdt:
+  gdata.ent_fn_dHdxdt = NULL;
+  gdata.have_dHdxdt = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_DHDXDT );
+  if (node)
+  {
+    ex = var_ent(node);
+    if (!isfuncent(ex))
+    {
+      gdata.ent_fn_dHdxdt = ex;
+      gdata.have_dHdxdt = 1;
+    }
+  }
+  // MASS:
+  gdata.ent_fn_Mfct = NULL;
+  gdata.have_Mfct = 0;
+  node = btree_FindNode(ent_data(e1), RLAB_NAME_GRAMPC_M);
+  if (node)
+  {
+    ex = var_ent(node);
+    if (isfuncent(ex))
+    {
+      gdata.ent_fn_Mfct = ex;
+      gdata.have_Mfct = 1;
+    }
   }
 
   // parameters for the functions in the list
@@ -500,7 +605,7 @@ Ent * ent_grampc(int nargs, Datum args[])
   if (ent_type (e5) == BTREE)
   {
 
-    // method for intergration, once interpolated solution is known:
+    // method for integration, once interpolated solution is known:
     node = btree_FindNode(ent_data(e5), RLAB_NAME_GEN_IMETHOD);
     if (node)
     {
@@ -653,7 +758,8 @@ Ent * ent_grampc(int nargs, Datum args[])
       }
     }
 
-    // 'xdes_mdr'
+    // 'xdes_mdr':
+    //    can be single vector, or stacked vectors
     node = btree_FindNode(ent_data(e5), RLAB_NAME_GRAMPC_OPTS_X0DES);
     if (node)
     {
@@ -661,9 +767,39 @@ Ent * ent_grampc(int nargs, Datum args[])
       if (ent_type (ep) == MATRIX_DENSE_REAL)
       {
         xdes_mdr = ent_data(ep);
-        if (SIZE(xdes_mdr) != SIZE(x0))
+        if (SIZE(xdes_mdr) < SIZE(x0))
         {
-          xdes_mdr=NULL;
+          xdes_mdr = 0;
+          nbkpt = 0;
+        }
+        else if (SIZE(xdes_mdr) == SIZE(x0))
+        {
+          nbkpt = 0;
+        }
+        if (MNC(xdes_mdr) == SIZE(x0))
+        {
+          nbkpt = MNR(xdes_mdr) - 1;
+        }
+      }
+    }
+
+    if (nbkpt > 0)
+    {
+      // 'bkpt':
+      //    get time breakpoints if xdes suggests they should be here
+      node = btree_FindNode(ent_data(e5), RLAB_NAME_GRAMPC_OPTS_X0DES_TBKPT);
+      if (node)
+      {
+        ep = var_ent(node);
+        if (ent_type (ep) == MATRIX_DENSE_REAL)
+        {
+          bkpt_mdr = ent_data(ep);
+          if (SIZE(bkpt_mdr) != nbkpt)
+          {
+            rlab_stderr_printfln(THIS_SOLVER RLAB_MSG_SEP "Warning: dim(bkpt) != NR(xdes)-1: Both entries are ignored!");
+            xdes_mdr = 0;
+            nbkpt = 0;
+          }
         }
       }
     }
@@ -920,6 +1056,40 @@ Ent * ent_grampc(int nargs, Datum args[])
         else if (cgr > 1)
         {
           cgr = 1;
+        }
+      }
+    }
+
+    // 'integrator'
+    node = btree_FindNode(ent_data(e5), RLAB_NAME_GRAMPC_OPTS_INT);
+    if (node)
+    {
+      ep = var_ent(node);
+      if (ent_type (ep) == MATRIX_DENSE_STRING)
+      {
+        integrator = class_char_pointer(ep);
+        if ( strcmp(integrator, "rodas"))
+        {
+          integrator = NULL;
+        }
+      }
+    }
+
+    // integrator flags
+    node = btree_FindNode(ent_data(e5), RLAB_NAME_GRAMPC_OPTS_INT_FLAGS);
+    if (node)
+    {
+      ep = var_ent(node);
+      if (ent_type (ep) == MATRIX_DENSE_REAL)
+      {
+        MDR *f = ent_data(ep);
+        if (!strcmp(integrator, "rodas"))
+        {
+          if ( SIZE(f)>0 )
+          {
+            for (i=0; i<SIZE(f); i++)
+              iflags[i] = mdiV0(f,i);
+          }
         }
       }
     }
@@ -1515,7 +1685,16 @@ Ent * ent_grampc(int nargs, Datum args[])
 
   // desired state: X
   if (xdes_mdr)
+  {
+    if (nbkpt > 0)
+    {
+      // from rows of vector to columns of vectors
+      mdr_Transpose_inplace (xdes_mdr);
+    }
+
+    // copy first column to xdes
     grampc_setparam_real_vector(grampc, "xdes", MDPTR(xdes_mdr));
+  }
 
   // initial control: U0
   grampc_setparam_real_vector(grampc, "u0",   MDPTR(u0));
@@ -1565,10 +1744,24 @@ Ent * ent_grampc(int nargs, Datum args[])
   grampc_setopt_real(grampc, "PenaltyIncreaseFactor", penincfac);
   grampc_setopt_real(grampc, "PenaltyDecreaseFactor", pendecfac);
   grampc_setopt_real(grampc, "PenaltyIncreaseThreshold", penthr);
-  grampc_setopt_real(grampc, "IntegratorRelTol", reltol);
-  grampc_setopt_real(grampc, "IntegratorAbsTol", abstol);
-  grampc_setopt_real(grampc, "IntegratorMinStepSize", minstep);
-  grampc_setopt_int (grampc, "IntegratorMaxSteps", maxi);
+
+  // are we using integrator, e.g., rodas?
+  if (integrator)
+  {
+    grampc_setopt_string(grampc, "Integrator",            integrator);
+    grampc_setopt_real  (grampc, "IntegratorRelTol",      reltol);
+    grampc_setopt_real  (grampc, "IntegratorAbsTol",      abstol);
+    grampc_setopt_real  (grampc, "IntegratorMinStepSize", minstep);
+    grampc_setopt_int   (grampc, "IntegratorMaxSteps",    maxi);
+    if (!strcmp(integrator, "rodas"))
+    {
+      // Mass is full matrix
+      // Jacobian is full matrix
+      iflags[3] = (gdata.have_Mfct);  // did we provide mass matrix?
+      iflags[4] = iflags[5] = iflags[6] = iflags[7] = gdata.Nx;
+      grampc_setopt_int_vector(grampc, "FlagsRodas", iflags);
+    }
+  }
 
   //
   grampc_setopt_string(grampc, "ConvergenceCheck", "off");
@@ -1670,7 +1863,6 @@ Ent * ent_grampc(int nargs, Datum args[])
     grampc_fprintparam(fptr, grampc);
   }
 
-
   if (tsim > 0)
   {
     //
@@ -1707,9 +1899,21 @@ Ent * ent_grampc(int nargs, Datum args[])
     Mdr0(c_sol_mdr,0,2) = create_nan();
 
     t = t0;
+    int j_bkpt=0;
     for (i=0; i<Ntm; i++)
     {
       grampc_setparam_real(grampc, "t0", t);
+
+      // do we adjust xdes?
+      if (nbkpt > 0)
+      {
+        if (j_bkpt < nbkpt)
+          if ( t > mdrV0(bkpt_mdr,j_bkpt) )
+        {
+          j_bkpt++;
+          grampc_setparam_real_vector(grampc, "xdes", (double *) &Mdr0(xdes_mdr,0,j_bkpt));
+        }
+      }
 
       grampc_run(grampc);
 
@@ -1816,6 +2020,16 @@ Ent * ent_grampc(int nargs, Datum args[])
       fprintf (fptr, "RLaB: MPC optimization lasted %g sec.\n", timer / 1e6);
       fclose (fptr);
     }
+
+    if (xdes_mdr)
+    {
+      if (nbkpt > 0)
+      {
+        // from rows of vector to columns of vectors
+        mdr_Transpose_inplace (xdes_mdr);
+      }
+    }
+
 
     GC_FREE(rwsReferenceIntegration);
 
