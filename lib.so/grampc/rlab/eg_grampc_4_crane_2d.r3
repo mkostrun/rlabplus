@@ -23,7 +23,7 @@
  *
  * This probfct-file describes the crane 2D problem from
  * Kapernick, B., Graichen, K.: Model predictive control of an overhead
- * crane using constraint substitution. In: Proc. American Control 
+ * crane using constraint substitution. In: Proc. American Control
  * Conference (ACC), pp. 3973-3978, 2013.
  *
  *                                           _T
@@ -109,7 +109,7 @@ optim_fns.dfdu = function(t, x, u, s)
   }
   return rval;
 };
-// COST: subintegral 
+// COST: subintegral
 optim_fns.lfct = function(t, x, x_des, u, u_des, s)
 {
   // s:
@@ -124,7 +124,7 @@ optim_fns.lfct = function(t, x, x_des, u, u_des, s)
   }
   return rval;
 };
-// COST: subintegral 
+// COST: subintegral
 optim_fns.dldx = function(t, x, x_des, u, u_des, s)
 {
   // s:
@@ -139,7 +139,7 @@ optim_fns.dldx = function(t, x, x_des, u, u_des, s)
   }
   return rval;
 };
-// COST: subintegral 
+// COST: subintegral
 optim_fns.dldu = function(t, x, x_des, u, u_des, s)
 {
   // s:
@@ -247,7 +247,7 @@ opts.Tsim   = Tsim;
 opts.ConstraintsAbsTol = [1e-4, 1e-3, 1e-3];
 opts.estim_penmin = 1;
 
-opts.stdout = rconsole();
+opts.stdout = term();
 
 tic();
 y = grampc.solve(optim_fns, s, x0, u0, opts);

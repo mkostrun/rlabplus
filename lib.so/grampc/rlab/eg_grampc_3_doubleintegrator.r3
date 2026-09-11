@@ -21,7 +21,7 @@
  *
  *
  *
- * This probfct-file describes a double integrator problem in the 
+ * This probfct-file describes a double integrator problem in the
  * context of shrinking horizon MPC
  *
  *                                           _T
@@ -94,7 +94,7 @@ optim_fns.dfdu = function(t, x, u, s)
   []];
   return rval;
 };
-// COST: subintegral 
+// COST: subintegral
 optim_fns.lfct = function(t, x, x_des, u, u_des, s)
 {
   // s:
@@ -175,7 +175,7 @@ optim_fns.dgtdx = function(T, x, s)
   }
   rval = [ ...
       1, 0; ...
-      0, 1; ... 
+      0, 1; ...
   []];
   return rval;
 };
@@ -233,7 +233,7 @@ opts.CountTnextLessThanTmin = 2;
 opts.MaxIter = 100;
 opts.estim_penmin = 1;
 //opts.ScaleProblem = 1;
-opts.stdout = rconsole();
+opts.stdout = term();
 
 
 tic();
@@ -267,7 +267,7 @@ gnuplot(<<...
   a1=y.sol.x[;1,2]; ...
   a2=y.sol.x[;1,3]; ...
   b1=y.sol.u; ...
- >>, "./eg_grampc_3.pdf");
+ >>, "./fig/eg_grampc_3.pdf");
 
 
 

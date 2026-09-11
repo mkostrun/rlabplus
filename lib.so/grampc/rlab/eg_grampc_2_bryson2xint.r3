@@ -25,7 +25,7 @@
  *
  * This probfct-file describes the crane 2D problem from
  * Kapernick, B., Graichen, K.: Model predictive control of an overhead
- * crane using constraint substitution. In: Proc. American Control 
+ * crane using constraint substitution. In: Proc. American Control
  * Conference (ACC), pp. 3973-3978, 2013.
  *
  *                                           _T
@@ -87,7 +87,7 @@ optim_fns.dfdu = function(t, x, u, s)
   []];
   return rval;
 };
-// COST: subintegral 
+// COST: subintegral
 optim_fns.lfct = function(t, x, x_des, u, u_des, s)
 {
   if (DEBUG)
@@ -115,7 +115,7 @@ optim_fns.dldx = function(t, x, x_des, u, u_des, s)
   //  s.h[1:4]
   return zeros(1,2);
 };
-// COST: subintegral 
+// COST: subintegral
 optim_fns.dldu = function(t, x, x_des, u, u_des, s)
 {
   if (DEBUG)
@@ -206,7 +206,7 @@ optim_fns.dgtdx = function(T, x, s)
   //  s.gt[1]
   rval = [ ...
       1, 0; ...
-      0, 1; ... 
+      0, 1; ...
   []];
   return rval;
 };
@@ -255,7 +255,7 @@ opts.MaxIter = 2000;
 
 opts.estim_penmin = 1;
 //opts.ScaleProblem = 1;
-opts.stdout = rconsole();
+opts.stdout = term();
 
 tic();
 y = grampc.solve(optim_fns, s, x0, u0, opts);
@@ -285,7 +285,7 @@ gnuplot(<<...
   a1=y.pred.x[;1,2]; ...
   a2=y.pred.x[;1,3]; ...
   b1=y.pred.u; ...
- >>, "./eg_grampc_2.pdf");
+ >>, "./fig/eg_grampc_2.pdf");
 
 gnuwin(2);
 gnulimits (0,thor,,);
@@ -302,7 +302,7 @@ gnuformat([ ...
   "with lines lt 1 lw 2 lc rgb 'red' axes x1y1", ...
   "with lines lt 1 lw 2 lc rgb 'orange' axes x1y1", ...
 []]);
-gnuplot(a1=y.pred.j, "./eg_grampc_2_cost.pdf");
+gnuplot(a1=y.pred.j, "./fig/eg_grampc_2_cost.pdf");
 
 
 

@@ -22,9 +22,9 @@
  *
  *
  * This file describes the single-axis ball on plate problem from
- * Richter, S.: Computational complexity certifcation of gradient methods
+ * Richter, S.: Computational complexity certification of gradient methods
  * for real-time model predictive control. Ph.D. thesis, ETH Zürich (2012).
- *  
+ *
  *                                           _T
  *                                          /
  *      min    J(u,p,T;x0) = V(T,x(T),p) + / l(t,x(t),u(t),p) dt
@@ -72,7 +72,7 @@ optim_fns.dfdu = function(t, x, u, s)
   return rval;
 };
 
-// COST: subintegral 
+// COST: subintegral
 optim_fns.lfct = function(t, x, xdes, u, udes, s)
 {
   // s:
@@ -83,7 +83,7 @@ optim_fns.lfct = function(t, x, xdes, u, udes, s)
   rval = 0.5 .* (sum((x-xdes).^2 .* s.x) + sum(s.u *(u-udes).^2));
   return rval;
 };
-// COST: subintegral 
+// COST: subintegral
 optim_fns.dldx = function(t, x, xdes, u, udes, s)
 {
   // s:
@@ -94,7 +94,7 @@ optim_fns.dldx = function(t, x, xdes, u, udes, s)
   rval = (x-xdes).* s.x;
   return rval;
 };
-// COST: subintegral 
+// COST: subintegral
 optim_fns.dldu = function(t, x, xdes, u, udes, s)
 {
   // s:
@@ -191,7 +191,7 @@ opts.AugLagUpdateGradientRelTol = 1;
 opts.ConstraintsAbsTol = 1.e-3; // dim(hfct), or 1 then applies to each constraint;
 opts.PenaltyMin = 0.1;
 opts.estim_penmin = 1;
-opts.stdout = rconsole();
+opts.stdout = term();
 
 tic();
 y = grampc.solve(optim_fns, s, x0, u0, opts);
@@ -221,7 +221,7 @@ gnuplot(<<...
   a1=y.sol.x[;1,2]; ...
   a2=y.sol.x[;1,3]; ...
   b1=y.sol.u; ...
->>, "./eg_grampc_1.pdf");
+>>, "./fig/eg_grampc_1.pdf");
 
 
 gnuwin(2);
@@ -239,7 +239,7 @@ gnuformat([ ...
   "with lines lt 1 lw 2 lc rgb 'red' axes x1y1", ...
   "with lines lt 1 lw 2 lc rgb 'orange' axes x1y1", ...
 []]);
-gnuplot(a1=y.sol.j, "./eg_grampc_1_cost.pdf");
+gnuplot(a1=y.sol.j, "./fig/eg_grampc_1_cost.pdf");
 
 
 
