@@ -32,6 +32,7 @@ DEBUG = 0;
 rfile libgrampc.so
 
 EG = 4;
+REV = "b";
 
 static(G);
 G = mks.g;
@@ -107,10 +108,50 @@ optim_fns.f_u = function(t, x, u, s)
 };
 
 // COST: subintegral
-optim_fns.l= <<>>;
-optim_fns.l.l_xx = s.cost_x;
-optim_fns.l.l_uu = s.cost_u;
-
+optim_fns.l = function(t, x, x_des, u, u_des, s)
+{
+  // s:
+  //  s.cost_x[1:6]
+  //  s.cost_u[1:2]
+  //  s.h[1:3]
+  rval = sum(s.cost_x .* (x - x_des).^2) + sum(s.cost_u .* (u - u_des).^2);
+  if (DEBUG)
+  {
+    "lfct:\n"?
+    rval?
+  }
+  return rval;
+};
+// COST: subintegral
+optim_fns.l_x = function(t, x, x_des, u, u_des, s)
+{
+  // s:
+  //  s.cost_x[1:6]
+  //  s.cost_u[1:2]
+  //  s.h[1:3]
+  rval = 2 .* s.cost_x .* (x - x_des);
+  if (DEBUG)
+  {
+    "dldx:\n"?
+    rval?
+  }
+  return rval;
+};
+// COST: subintegral
+optim_fns.l_u = function(t, x, x_des, u, u_des, s)
+{
+  // s:
+  //  s.cost_x[1:6]
+  //  s.cost_u[1:2]
+  //  s.h[1:3]
+  rval = 2 .* s.cost_u .* (u - u_des);
+  if (DEBUG)
+  {
+    "dldu:\n"?
+    rval?
+  }
+  return rval;
+};
 
 // CONSTRAINT: inequalities
 optim_fns.h = function(t, x, u, s)
@@ -158,11 +199,14 @@ optim_fns.h_x = function(t, x, u, s)
   return rval;
 };
 // CONSTRAINT: inequalities
-// optim_fns.dhdu = function(t, x, u, s)
-optim_fns.h_u = [ ...
-      0, 0; ...
-      0, 0; ...
-      0, 0  ];
+optim_fns.h_u = function(t, x, u, s)
+{
+  rval = [ ...
+    0, 0; ...
+    0, 0; ...
+    0, 0  ];
+  return rval;
+};
 
 // problem parameters:
 Tsim = 10;

@@ -5,12 +5,13 @@
 //      min    J(u,p,T;x0) = V(T,x(T),p) + / l(t,x(t),u(t),p) dt
 //   u(.),p,T                            _/
 //                                      0
-//
-//      s.t.   mass*dx/dt(t) = f(t,x(t),u(t),p), x(0) = x0
+//             .
+//      s.t.   x(t) = f(t0+t,x(t),u(t),p), x(0) = x0
 //             h(x)  <= 0
 //             u_min <= u(t) <= u_max
 //
 EG = 6;
+REV="b";
 
 rfile libgrampc.so
 
@@ -21,37 +22,106 @@ s = [500, 0, 1];
 // define list of functions for the optimization solver GRAMPC
 //
 optim_fns = <<>>;
+optim_fns.f = function(t, x, u, s)
+{
+  rval = [ u[1]; u[2]; x[1] + x[2] - x[3] ];
+  return rval;
+};
 
-// ODE:
-optim_fns.f = <<>>;
-optim_fns.f.f_x = [ ...
-  0, 0, 0; ...
-  0, 0, 0; ...
-  1, 1, -1 ];
-optim_fns.f.f_u = [...
+// ODE: (df/dx)_{i,j} = d (f_i) / d(x_j)
+optim_fns.f_x = function(t, x, u, s)
+{
+  rval = [ ...
+    0, 0, 0; ...
+    0, 0, 0; ...
+    1, 1, -1 ];
+  return rval;
+};
+
+// ODE: (df/du)_{i,j} = d (f_i) / d(u_j)
+optim_fns.f_u = function(t, x, u, s)
+{
+  rval = [...
     1, 0; ...
     0, 1; ...
     0, 0 ];
+  return rval;
+};
+
+// ODE: (df/dt) = 0
+optim_fns.f_t = function(t, x, u, s)
+{
+  return zeros(3,1);
+};
 
 // COST: subintegral
-optim_fns.l = <<>>;
-optim_fns.l.l_xx = [s[1,2],0];
-optim_fns.l.l_uu = s[3];
+optim_fns.l = function(t, x, x_des, u, u_des, s)
+{
+  // s: (unoptimizable) parameter array
+  rval = 0.5*(s[3]*u[1].*u[1] + s[3]*u[2]*u[2] + s[1]*(x[1]-x_des[1]).^2 ...
+      + s[2]*(x[2] - x_des[2]).^2 );
+  return rval;
+};
+// COST: subintegral: jacobian x
+optim_fns.l_x = function(t, x, x_des, u, u_des, s)
+{
+  // s: (unoptimizable) parameter array
+  rval = [ s[1] * (x[1] - x_des[1]), s[2] * (x[2] - x_des[2]), 0];
+  return rval;
+};
+
+// COST: subintegral : jacobian u
+optim_fns.l_u = function(t, x, x_des, u, u_des, s)
+{
+  // s: (unoptimizable) parameter array
+  rval = [s[3] * u[1], s[3] * u[2]];
+  return rval;
+};
 
 // TERMINAL COST:
-optim_fns.v = <<>>;
-optim_fns.v.v_xx = [s[1,2],0];
+optim_fns.v = function(T, x, x_des, s)
+{
+  // s: (unoptimizable) parameter array
+  rval = 0.5*( s[1]*(x[1]-x_des[1]).^2  + s[2]*(x[2]-x_des[2]).^2 );
+  return rval;
+};
+
+// TERMINAL COST: jacobian x
+optim_fns.v_x = function(T, x, x_des, s)
+{
+  // s: (unoptimizable) parameter array
+  rval = [ s[1]*(x[1]-x_des[1]), s[2]*(x[2]-x_des[2]), 0];
+  return rval;
+};
 
 // EQUALITY constraints
-optim_fns.g = <<>>;
-optim_fns.g.g_0 = -1;
-optim_fns.g.g_x = [0, 0, 1];
+optim_fns.g = function(t, x, u, s)
+{
+  // s: (unoptimizable) parameter array
+  return (-1 + x[3]);
+};
 
-// optim_fns.mass = function(s)
-optim_fns.m = [...
+// EQUALITY constraints: jacobian x
+optim_fns.g_x = function(t, x, u, s)
+{
+  rval = [0, 0, 1];
+  return rval;
+};
+
+// EQUALITY constraints: jacobian u
+optim_fns.g_u = function(t, x, u, s)
+{
+  return [0, 0];
+};
+
+optim_fns.m = function(s)
+{
+  rval = [...
     1,0,0; ...
     0,1,0; ...
     0,0,0 ];
+  return rval;
+};
 
 // time
 dt = 1/128;

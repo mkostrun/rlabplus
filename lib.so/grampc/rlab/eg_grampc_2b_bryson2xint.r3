@@ -33,40 +33,110 @@ DEBUG=0;
 
 rfile libgrampc.so
 
+//
+// define list of functions for the optimization solver GRAMPC
+//
+optim_fns = <<>>;
+optim_fns.f = function(t, x, u, s)
+{
+  if (DEBUG)
+  {
+    "ffct:\n"?
+  }
+  rval = [ ...
+      x[2]; ...
+      u; ...
+  []];
+  return rval;
+};
+// ODE: (df/dx)_{i,j} = d (f_i) / d(x_j)
+// optim_fns.dfdx = function(t, x, u, s)
+optim_fns.f_x = [ ...
+      0, 1; ...
+      0, 0 ];
+
+// ODE: (df/du)_{i,j} = d (f_i) / d(u_j)
+// optim_fns.dfdu = function(t, x, u, s)
+optim_fns.f_u = [ ...
+      0; ...
+      1 ];
+
+// COST: subintegral
+optim_fns.l = function(t, x, x_des, u, u_des, s)
+{
+  if (DEBUG)
+  {
+    "lfct:\n"?
+  }
+  // s:
+  //  s.x[1:2]
+  //  s.u[1]
+  //  s.v[1:2]
+  //  s.h[1:4]
+  rval = 0.5 .* (u).^2;
+  return rval;
+};
+
+optim_fns.l_x = function(t, x, x_des, u, u_des, s)
+{
+  return zeros(1,2);
+};
+
+optim_fns.l_u = function(t, x, x_des, u, u_des, s)
+{
+  return (u);
+};
+
+// CONSTRAINT: inequalities
+optim_fns.h = function(t, x, u, s)
+{
+  // s:
+  //  s.h[1]
+  rval = [ ...
+      x[1] - s.h; ...
+  []];
+  return rval;
+};
+
+optim_fns.h_x = function(t, x, u, s)
+{
+  return [1,0];
+};
+
+optim_fns.h_u =  function(t, x, u, s)
+{
+  return 0;
+};
+
+// CONSTRAINT: equalities
+optim_fns.gtfct = function(T, x, s)
+{
+  if (DEBUG)
+  {
+    "gtfct:\n"?
+    [T,x]?
+  }
+  // s:
+  //  s.h[1]
+  //  s.gt[1]
+  rval = [ ...
+      x[1]; ...
+      x[2] - s.gt; ...
+  []];
+  //rval?
+  return rval;
+};
+// CONSTRAINT: equalities
+//optim_fns.dgtdx = function(T, x, s)
+optim_fns.dgtdx = [ ...
+      1, 0; ...
+      0, 1  ];
+
 // problem parameters:
 //  passed directly to the functions in the list
 s = <<>>;
 s.h  = 0.1;
 s.gt = -1;
-
-//
-// define list of functions for the optimization solver GRAMPC
-//
-optim_fns = <<>>;
-optim_fns.f = <<>>;
-optim_fns.f.f_x = [ ...
-      0, 1; ...
-      0, 0 ];
-optim_fns.f.f_u = [ ...
-      0; ...
-      1 ];
-
-// COST: subintegral
-optim_fns.l = <<>>;
-optim_fns.l.l_uu = 1;
-optim_fns.l.l_xx = zeros(1,2);
-
-// CONSTRAINT: inequalities
-optim_fns.h = <<>>;
-optim_fns.h.h_0 = -s.h;
-optim_fns.h.h_x = [1,0];
-
-// CONSTRAINT: equalities
-optim_fns.gt = <<>>;
-optim_fns.gt.gt_0 = [0; -s.gt];
-optim_fns.gt.gt_x = [ ...
-      1, 0; ...
-      0, 1  ];
 
 // time
 dt = 1e-3;
@@ -136,7 +206,7 @@ gnuplot(<<...
   a1=y.pred.x[;1,2]; ...
   a2=y.pred.x[;1,3]; ...
   b1=y.pred.u; ...
- >>, "./fig/eg_grampc_2.pdf");
+ >>, "./fig/eg_grampc_2b.pdf");
 
 gnuwin(2);
 gnulimits (0,thor,,);
@@ -153,7 +223,7 @@ gnuformat([ ...
   "with lines lt 1 lw 2 lc rgb 'red' axes x1y1", ...
   "with lines lt 1 lw 2 lc rgb 'orange' axes x1y1", ...
 []]);
-gnuplot(a1=y.pred.j, "./fig/eg_grampc_2_cost.pdf");
+gnuplot(a1=y.pred.j, "./fig/eg_grampc_2b_cost.pdf");
 
 
 

@@ -11,7 +11,7 @@
  *
  * GRAMPC is distributed under the BSD-3-Clause license, see LICENSE.txt
  *
- * This rlab script describes the single-axis ball on plate problem from
+ * This rlab script the single-axis ball on plate problem from
  * Richter, S.: Computational complexity certification of gradient methods
  * for real-time model predictive control. Ph.D. thesis, ETH Zürich (2012).
  *
@@ -43,28 +43,103 @@ s.h = [-0.2, 0.2, -0.1, 0.1];
 //
 optim_fns = <<>>;
 // ODE: RHS function FFCT
-optim_fns.f = <<>>;
-optim_fns.f.f_x = [ ...
+optim_fns.f = function(t, x, u, s)
+{
+  rval = [ ...
+      x[2] - 0.04 * u; ...
+      -7.01 * u; ...
+  []];
+  return rval;
+};
+// ODE: (df/dx)_{i,j} = d (f_i) / d(x_j)
+// optim_fns.dfdx = function(t, x, u, s)
+optim_fns.f_x = [ ...
   0, 1; ...
   0, 0  ];
-optim_fns.f.f_u = [ ...
+
+// ODE: (df/du)_{i,j} = d (f_i) / d(u_j)
+// optim_fns.dfdu = function(t, x, u, s)
+optim_fns.f_u = [ ...
   -0.04; ...
   -7.01  ];
 
 // COST: subintegral
-optim_fns.l= <<>>;
-optim_fns.l.l_xx = s.x;
-optim_fns.l.l_uu = s.u;
+optim_fns.l = function(t, x, xdes, u, udes, s)
+{
+  // s:
+  //  s.x[1:2]
+  //  s.u[1]
+  //  s.v[1:2]
+  //  s.h[1:4]
+  rval = 0.5 .* (sum((x-xdes).^2 .* s.x) + sum(s.u *(u-udes).^2));
+  return rval;
+};
+// COST: subintegral
+optim_fns.l_x = function(t, x, xdes, u, udes, s)
+{
+  // s:
+  //  s.x[1:2]
+  //  s.u[1]
+  //  s.v[1:2]
+  //  s.h[1:4]
+  rval = (x-xdes).* s.x;
+  return rval;
+};
+// COST: subintegral
+optim_fns.l_u = function(t, x, xdes, u, udes, s)
+{
+  // s:
+  //  s.x[1:2]
+  //  s.u[1]
+  //  s.v[1:2]
+  //  s.h[1:4]
+  rval = s.u *(u-udes);
+  return rval;
+};
 
 // COST: terminal
-optim_fns.v = <<>>;
-optim_fns.v.v_xx = s.v;
+optim_fns.v = function(t, x, xdes, s)
+{
+  // s:
+  //  s.x[1:2]
+  //  s.u[1]
+  //  s.v[1:2]
+  //  s.h[1:4]
+  rval = 0.5 .* sum(s.v .* (x-xdes).^2);
+  return rval;
+};
+// COST: terminal
+optim_fns.v_x = function(t, x, xdes, s)
+{
+  // s:
+  //  s.x[1:2]
+  //  s.u[1]
+  //  s.v[1:2]
+  //  s.h[1:4]
+  rval = (x-xdes) .* s.v;
+  return rval;
+};
 
 // CONSTRAINT: inequalities
-optim_fns.h = <<>>;
-optim_fns.h.h_0 = [ s.h[1], -s.h[2], s.h[3], -s.h[4]];
-optim_fns.h.h_x = [ ...
- -1,  0; ...
+optim_fns.h = function(t, x, u, s)
+{
+  // s:
+  //  s.x[1:2]
+  //  s.u[1]
+  //  s.v[1:2]
+  //  s.h[1:4]
+  rval = [ ...
+      s.h[1] - x[1]; ...
+     -s.h[2] + x[1]; ...
+      s.h[3] - x[2]; ...
+     -s.h[4] + x[2]; ...
+  []];
+  return rval;
+};
+// CONSTRAINT: inequalities in the form:
+//  (hfct)_i + (dhdx * x)_i <= 0
+optim_fns.h_x = [ ...
+  -1,  0; ...
   1,  0; ...
   0, -1; ...
   0,  1 ];
@@ -95,10 +170,6 @@ opts.stdout = term();
 
 tic();
 y = grampc.solve(optim_fns, s, x0, u0, opts);
-if(isempty(y))
-{
-  stop("Computation failed. Nothing to do!\n");
-}
 
 printf("Optimization took %g sec\n", toc());
 
@@ -125,7 +196,7 @@ gnuplot(<<...
   a1=y.sol.x[;1,2]; ...
   a2=y.sol.x[;1,3]; ...
   b1=y.sol.u; ...
->>, "./fig/eg_grampc_1.pdf");
+>>, "./fig/eg_grampc_1b.pdf");
 
 
 gnuwin(2);
@@ -143,7 +214,7 @@ gnuformat([ ...
   "with lines lt 1 lw 2 lc rgb 'red' axes x1y1", ...
   "with lines lt 1 lw 2 lc rgb 'orange' axes x1y1", ...
 []]);
-gnuplot(a1=y.sol.j, "./fig/eg_grampc_1_cost.pdf");
+gnuplot(a1=y.sol.j, "./fig/eg_grampc_1b_cost.pdf");
 
 
 

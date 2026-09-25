@@ -43,29 +43,117 @@ s.v = 1.0;
 // define list of functions for the optimization solver GRAMPC
 //
 optim_fns = <<>>;
-// ODE:
-optim_fns.f = <<>>;
-optim_fns.f.f_x = [ ...
-  0, 1; ...
-  0, 0 ];
-optim_fns.f.f_u  = [ ...
-  0; ...
-  1  ];
+optim_fns.f = function(t, x, u, s)
+{
+  // s:
+  //  s.l
+  //  s.v
+  if (DEBUG)
+  {
+    "ffct:\n"?
+  }
+  rval = [ ...
+      x[2]; ...
+      u; ...
+  []];
+  return rval;
+};
+// ODE: (df/dx)_{i,j} = d (f_i) / d(x_j)
+optim_fns.f_x = function(t, x, u, s)
+{
+  rval = [ ...
+    0, 1; ...
+    0, 0 ];
+  return rval;
+};
+
+// ODE: (df/du)_{i,j} = d (f_i) / d(u_j)
+optim_fns.f_u = function(t, x, u, s)
+{
+  rval = [ ...
+    0; ...
+    1  ];
+  return rval;
+};
 
 // COST: subintegral
-optim_fns.l= <<>>;
-optim_fns.l.l_uu = s.l;
+optim_fns.l = function(t, x, x_des, u, u_des, s)
+{
+  // s:
+  //  s.l
+  //  s.v
+  if (DEBUG)
+  {
+    "lfct:\n"?
+  }
+  rval = s.l .* (u - u_des).^2;
+  return rval;
+};
+// COST: subintegral
+optim_fns.l_u = function(t, x, x_des, u, u_des, s)
+{
+  // s:
+  //  s.l
+  //  s.v
+  if (DEBUG)
+  {
+    "dldu:\n"?
+  }
+  rval = 2 .* s.l .* (u - u_des);
+  return rval;
+};
 
-// COST: terminal
-optim_fns.v = <<>>;
-optim_fns.v.v_t = s.v;
-
-// CONSTRAINT: equalities: terminal
-optim_fns.gt = <<>>;
-optim_fns.gt.gt_0 = zeros(2,1);
-optim_fns.gt.gt_x = [ ...
-  1, 0; ...
-  0, 1  ];
+optim_fns.v = function(t, x, x_des, s)
+{
+  // s:
+  //  s.l
+  //  s.v
+  if (DEBUG)
+  {
+    "vfct:\n"?
+  }
+  rval = s.v .* t;
+  return rval;
+};
+optim_fns.v_t = function(t, x, x_des, s)
+{
+  // s:
+  //  s.l
+  //  s.v
+  if (DEBUG)
+  {
+    "dvdt:\n"?
+  }
+  rval = s.v;
+  return rval;
+};
+// CONSTRAINT: equalities
+optim_fns.gt = function(T, x, s)
+{
+  // s:
+  //  s.l
+  //  s.v
+  rval = [ ...
+      x[1]; ...
+      x[2]; ...
+  []];
+  if (DEBUG)
+  {
+    "gtfct:\n[T,x]="?
+    [T,x]?
+    "rval="?
+    rval?
+  }
+  return rval;
+};
+// CONSTRAINT: equalities
+optim_fns.gt_x = function(T, x, s)
+{
+  rval = [ ...
+      1, 0; ...
+      0, 1  ];
+  return rval;
+};
 
 
 // state
@@ -149,7 +237,7 @@ gnuplot(<<...
   a1=y.sol.x[;1,2]; ...
   a2=y.sol.x[;1,3]; ...
   b1=y.sol.u; ...
- >>, "./fig/eg_grampc_3.pdf");
+ >>, "./fig/eg_grampc_3b.pdf");
 
 
 
