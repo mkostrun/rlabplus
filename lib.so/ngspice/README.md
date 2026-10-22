@@ -119,7 +119,7 @@ Transient solution for v1 (through external current source for *i1* that was pro
 ![electronic circuit](/lib.so/ngspice/art/thermal-circuit-pid.png)
 
 Consider an electronic circuit shown in the figure above. It is a lumped thermal network that is converted to RC-network. Notice our attempt to
-control the voltage *v1* around value 4+/_1V.
+control the voltage *v1* around value 4+/_1V. The script demonstrates how to use __stop__ command withing ngspice control block, and __bg_run__ and __bg_resume__ for starting and resuming computations after altering model parameters (here *i1* that flips between 1 and 0 at the breakpoints).
 
 An **rlab** script that would solve that circuit is as follows, see the file *rlab/eg_spice_3_stop_pid_control.r3* of which this is an excerpt not showing the plotting.
 
