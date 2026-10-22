@@ -17,7 +17,7 @@ In its rlab form, each of the solver libraries comprise share object library, an
 
 The following solver libraries are provided:
 
-- _cfitsio_ - wrapper to [CFITSIO](https://heasarc.gsfc.nasa.gov/docs/software/fitsio/) system library, for loading and manipulations of images  using FITS file format;
+- [_cfitsio_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/cfitsio) - wrapper to [CFITSIO](https://heasarc.gsfc.nasa.gov/docs/software/fitsio/) system library, for loading and manipulations of images  using FITS file format;
 
 - _expat_ - wrapper to [expat XML parser](https://libexpat.github.io/) sytem library, for loading XML structures into rlab variables;
 
