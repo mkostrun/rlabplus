@@ -108,6 +108,9 @@ s = ngspice.getvals();
 ```
 For comparison, python version of this script with external voltage source is given [here](https://pyspice.fabrice-salvaire.fr/releases/v1.4/examples/ngspice-shared/external-source.html).
 
+![electronic circuit](/lib.so/ngspice/art/fig-ext-isrc.png)
+
+Transient solution for v1 (through external current source for *i1* that was provided through rlab function) and v2 obtained by ngspice as shared library.
 
 
 
