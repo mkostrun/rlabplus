@@ -50,7 +50,9 @@ The functions from the list ngspice are discussed in the manual *ngspice-manual.
 
 **rlab/** subdirectory contains number of scripts organized either as individual examples, or in further subdirectories like projects on their own.
 
-### 3. Example Script
+### 3. Example Scripts
+
+#### 3.1 Cirucit with External Current Source provided by RLab
 
 ![electronic circuit](/lib.so/ngspice/art/isrc_1.png)
 
@@ -112,9 +114,79 @@ For comparison, python version of this script with external voltage source is gi
 
 Transient solution for v1 (through external current source for *i1* that was provided through rlab function) and v2 obtained by ngspice as shared library.
 
+#### 3.2 PID-Like Controller for Lumped Thermal Circuit
+
+```
+rfile libngspice.so
+
+i1src_0 = 2;
+r1val = 1e1;
+c1val = 1e-1;
+vstop = 1e99;
+
+t_step = 0.001;
+t_end  = 100;
+
+spicecir = [ ...
+  "* solving thermal circuits with rlab", ...
+  ".parameter r1val=" + num2str(r1val,"%e"), ...
+  ".parameter c1val=" + num2str(c1val,"%e"), ...
+  "i1 0 1	dc " + num2str(i1src_0,"%e"), ...
+  "r1 1 0 'r1val'", ...
+  "c1 1 0 'c1val'", ...
+  "vstop 10 0 dc " + num2str(vstop,"%e"), ...
+  ".ic v(1)=0", ...
+  ".tran" + num2str(t_step," %e") + num2str(t_end," %e") , ...
+  ".end", ...
+[]];
+
+_ngspice_setup = <<>>;
+_ngspice_setup.stdout = term();
 
 
+spicecir'?
 
+//
+//
+//
+ngspice.init(_ngspice_setup);
+ngspice.command("reset");
+ngspice.circuit(spicecir);
+ngspice.command("stop when v(1) > 5 when time < v(10)");
+ngspice.command("stop when v(1) < 3 when time > v(10)");
+
+//
+// run with heat engine for the first time:
+//
+ngspice.command("bg_run");
+while(ngspice.isrunning())
+{ spinner();sleep(0.01); }
+
+// now keep cycling OFF/ON around desired set point
+for (i in 1:3)
+{
+  //
+  // run with heat engine off
+  //
+  ngspice.command("alter vstop=time");
+  ngspice.command("alter i1=0");
+  ngspice.command("bg_resume");
+  while(ngspice.isrunning())
+  { spinner();sleep(0.01); }
+
+  //
+  // run with heat engine on
+  //
+  ngspice.command("alter vstop=1e99");
+  ngspice.command("alter i1="+num2str(i1src_0,"%e"));
+  ngspice.command("bg_resume");
+  while(ngspice.isrunning())
+  { spinner();sleep(0.01); }
+}
+
+s = ngspice.getvals();
+
+```
 
 
 
