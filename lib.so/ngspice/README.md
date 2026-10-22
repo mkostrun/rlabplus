@@ -116,6 +116,13 @@ Transient solution for v1 (through external current source for *i1* that was pro
 
 #### 3.2 PID-Like Controller for Lumped Thermal Circuit
 
+![electronic circuit](/lib.so/ngspice/art/thermal-circuit-pid.png)
+
+Consider an electronic circuit shown in the figure above. It is a lumped thermal network that is converted to RC-network. Notice our attempt to
+control the voltage *v1* around value 4+/_1V.
+
+An **rlab** script that would solve that circuit is as follows, see the file *rlab/eg_spice_3_stop_pid_control.r3* of which this is an excerpt not showing the plotting.
+
 ```
 rfile libngspice.so
 
@@ -143,21 +150,13 @@ spicecir = [ ...
 _ngspice_setup = <<>>;
 _ngspice_setup.stdout = term();
 
-
-spicecir'?
-
-//
-//
-//
 ngspice.init(_ngspice_setup);
 ngspice.command("reset");
 ngspice.circuit(spicecir);
 ngspice.command("stop when v(1) > 5 when time < v(10)");
 ngspice.command("stop when v(1) < 3 when time > v(10)");
 
-//
 // run with heat engine for the first time:
-//
 ngspice.command("bg_run");
 while(ngspice.isrunning())
 { spinner();sleep(0.01); }
@@ -165,18 +164,14 @@ while(ngspice.isrunning())
 // now keep cycling OFF/ON around desired set point
 for (i in 1:3)
 {
-  //
   // run with heat engine off
-  //
   ngspice.command("alter vstop=time");
   ngspice.command("alter i1=0");
   ngspice.command("bg_resume");
   while(ngspice.isrunning())
   { spinner();sleep(0.01); }
 
-  //
   // run with heat engine on
-  //
   ngspice.command("alter vstop=1e99");
   ngspice.command("alter i1="+num2str(i1src_0,"%e"));
   ngspice.command("bg_resume");
@@ -187,6 +182,9 @@ for (i in 1:3)
 s = ngspice.getvals();
 
 ```
+![electronic circuit](/lib.so/ngspice/art/fig-pid-stop.png)
+
+Transient solution for v1 obtained by rlab script above.
 
 
 
