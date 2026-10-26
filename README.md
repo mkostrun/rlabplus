@@ -15,3 +15,9 @@ The solvers that are part of **lib.so** sub-project are here because they requir
 
 In its rlab form, each of the solver libraries comprise share object library, and a rlab script that loads the shared library and links new rlab functions to it. 
 
+# [lib.r](https://github.com/mkostrun/rlabplus/tree/main/lib.r)
+
+The solvers that are part of **lib.r** sub-project are special topic libraries written using rlab script that need not be loaded at the start of rlab. While these may be installed in system-accessible location, rlab will only load them if specifically instructed to do so.
+
+
+
