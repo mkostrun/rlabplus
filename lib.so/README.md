@@ -17,6 +17,13 @@ In its rlab form, each of the solver libraries comprise share object library, an
 
 The following solver libraries are provided:
 
+- [_gpib_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/gpib) - GPIB (Hewlett-Packard's General Purpose Interface Bus, for those who still use it and remember it)
+for hardware and instrumentation control: **_RLaB2_**/**_RLaB3_** wrapper for [linux-gpib](https://sourceforge.net/projects/linux-gpib).
+
+- [_ngspice_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/ngspice) - wrapper to  [_NGSPICE_](https://sourceforge.net/projects/ngspice)  shared library or executable, for solving electronic circuits. 
+
+- [_grampc_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/grampc) - wrapper to [grampc](https://github.com/grampc/grampc) library, to provide nonlinear model predictive control (MPC) framework for rlab;
+
 - [_cfitsio_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/cfitsio) - wrapper to [CFITSIO](https://heasarc.gsfc.nasa.gov/docs/software/fitsio/) system library, for loading and manipulations of images  using FITS file format;
 
 - [_expat_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/expat) - wrapper to [expat XML parser](https://libexpat.github.io/) sytem library, for loading XML structures into rlab variables;
@@ -25,17 +32,11 @@ The following solver libraries are provided:
 
 - [_gphoto2_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/gphoto2) - wrapper to [gphoto2](http://gphoto.org) system library, to provide camera control and image download for usb connected cameras;
 
-- [_gpib_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/gpib) - GPIB (Hewlett-Packard's General Purpose Interface Bus, for those who still use it and remember it)
-for hardware and instrumentation control: **_RLaB2_**/**_RLaB3_** wrapper for [linux-gpib](https://sourceforge.net/projects/linux-gpib).
-
-- [_grampc_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/grampc) - wrapper to [grampc](https://github.com/grampc/grampc) library, to provide nonlinear model predictive control (MPC) framework for rlab;
-
 - [_gts_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/gts) - an extension of [GNU triangulation library](https://gts.sourceforge.net), which provides mesh creation and computations.
 
 - [_kripto_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/kripto) - provides cryptography functions from [libkripto](https://github.com/LightBit/libkripto).
 
 - [_matio_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/matio) - wrapper to [MATIO](https://sourceforge.net/projects/matio), MATLAB I/O library. For this library, user has to obtain their own copy of MATIO and build it, then provide *libmatio.a*  for inclusion in rlab shared object library.
 
-- [_ngspice_](https://github.com/mkostrun/rlabplus/tree/main/lib.so/ngspice) - wrapper to  [_NGSPICE_](https://sourceforge.net/projects/ngspice)  shared library or executable, for solving electronic circuits. 
 
  
