@@ -1,1 +1,3 @@
-TBD
+## ngspice/arg/README.md 
+
+This directory contains artwork, various PNG files used in ngspice website.
