@@ -32,3 +32,5 @@ Projects:
 
    Project that develops X-spice code for diode, which introduces third electrode that sets the Delta ambient,junction
    temperature as voltage, to investigate light emitting diode loss of efficacy with heating.
+
+   NGSPICE groupies did not want to include that in X-spice distribution with NGSPICE, so it is provided here as use-at-your-own-peril code model device.
