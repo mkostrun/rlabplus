@@ -109,13 +109,13 @@ s = ngspice.getvals();
 ```
 For comparison, python version of this script with external voltage source is given [here](https://pyspice.fabrice-salvaire.fr/releases/v1.4/examples/ngspice-shared/external-source.html).
 
-<p align="center"><img width="250" src="/lib.so/ngspice/art/fig-ext-isrc.png" alt="description" /></p>
+<p align="center"><img width="500" src="/lib.so/ngspice/art/fig-ext-isrc.png" alt="description" /></p>
 
 Transient solution for v1 (through external current source for *i1* that was provided through rlab function) and v2 obtained by ngspice as shared library.
 
 #### 3.2 PID-Like Controller for Lumped Thermal Circuit
 
-![electronic circuit](/lib.so/ngspice/art/thermal-circuit-pid.png)
+<p align="center"><img width="500" src="(/lib.so/ngspice/art/thermal-circuit-pid.png" alt="Thermal RC Circuit" /></p>
 
 Consider an electronic circuit shown in the figure above. It is a lumped thermal network that is converted to RC-network. Notice our attempt to
 control the voltage *v1* around value 4+/_1V. The script demonstrates how to use __stop__ command withing ngspice control block, and __bg_run__ and __bg_resume__ for starting and resuming computations after altering model parameters (here *i1* that flips between 1 and 0 at the breakpoints).
