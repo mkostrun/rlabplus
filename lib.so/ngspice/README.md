@@ -55,7 +55,8 @@ The functions from the list ngspice are discussed in the manual *ngspice-manual.
 #### 3.1 Cirucit with External Current Source provided by RLab
 
 ![electronic circuit](/lib.so/ngspice/art/isrc_1.png)
-<p align="center"><img width="700" src="/lib.so/ngspice/art/isrc_1.png" alt="description" /></p>
+
+<p align="center"><img width="250" src="/lib.so/ngspice/art/isrc_1.png" alt="description" /></p>
 
 Consider an electronic circuit shown in the figure above. To make things more
 interesting, we assume that *i1* source is external.
