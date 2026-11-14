@@ -115,7 +115,7 @@ Transient solution for v1 (through external current source for *i1* that was pro
 
 #### 3.2 PID-Like Controller for Lumped Thermal Circuit
 
-<p align="center"><img width="500" src="(/lib.so/ngspice/art/thermal-circuit-pid.png" alt="Thermal RC Circuit" /></p>
+<p align="center"><img width="500" src="/lib.so/ngspice/art/thermal-circuit-pid.png" alt="Thermal RC Circuit" /></p>
 
 Consider an electronic circuit shown in the figure above. It is a lumped thermal network that is converted to RC-network. Notice our attempt to
 control the voltage *v1* around value 4+/_1V. The script demonstrates how to use __stop__ command withing ngspice control block, and __bg_run__ and __bg_resume__ for starting and resuming computations after altering model parameters (here *i1* that flips between 1 and 0 at the breakpoints).
