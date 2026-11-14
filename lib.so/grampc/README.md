@@ -230,8 +230,8 @@ Rlab checks matrix  _xdes_ and vector _bkpt_ for consistency: NR(xdes)=LENGTH(bk
 
 ## 4. One Example Script
 
-
-![GRAMPC solution](/lib.so/grampc/art/eg_grampc_1_cost.png)
+![GRAMPC solution](/lib.so/grampc/art/eg_grampc_1b.png)
+![GRAMPC solution](/lib.so/grampc/art/eg_grampc_1b_cost.png)
 
 
 Consider an example problem from GRAMPC package "Ball on the Plate", which solves an optimization problem of a single-axis ball on plate problem from Richter, S.: Computational complexity certification of gradient methods for real-time model predictive control. Ph.D. thesis, ETH Zürich (2012).
